@@ -985,8 +985,14 @@ static ssize_t adaptive_control_store(struct device *dev, struct device_attribut
 	if (priv->adaptive_control != value) {
 		dev_info(dev, "%s: %d, %d\n", __func__, priv->adaptive_control, value);
 
+#ifdef CONFIG_LCD_BURNIN_CORRECTION
 		if (priv->accessibility || priv->ldu_correction_state) {
 			pr_info("%s: don't support gallery change if color blind(%d) or ldu(%d) is already enabled\n", __func__, priv->accessibility, priv->ldu_correction_state);
+#else
+		if (priv->accessibility) {
+			pr_info("%s: don't support gallery change if color blind(%d) or ldu(%d) is already enabled\n", __func__, priv->accessibility, 0);
+#endif
+
 			return size;
 		}
 
@@ -1266,7 +1272,6 @@ static struct attribute *lcd_sysfs_attributes[] = {
 	&dev_attr_hmt_on.attr,
 #endif
 #if defined(CONFIG_LCD_ALPM) || defined(CONFIG_LCD_DOZE_MODE)
-	if (variant_edge == IS_EDGE)
 		&dev_attr_alpm.attr,
 #endif
 	&dev_attr_adaptive_control.attr,
