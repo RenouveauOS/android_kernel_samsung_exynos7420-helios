@@ -303,6 +303,12 @@ ifeq ($(CONFIG_WLAN_VHTDISABLE),y)
 DHDCFLAGS += -DDHD_DISABLE_VHTMODE
 endif
 
+ifeq ($(CONFIG_MALI_R22P0),y)
+PLATFORM_VERSION=8.0
+else
+PLATFORM_VERSION=7.0
+endif
+
 # Android Version Check from Platform source
 ifneq ($(PLATFORM_VERSION),)
 MAJOR_VERSION := $(shell echo $(PLATFORM_VERSION) | cut -d "." -f 1)
