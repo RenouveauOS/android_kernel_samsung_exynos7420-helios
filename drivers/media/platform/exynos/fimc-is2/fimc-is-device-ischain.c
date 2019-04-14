@@ -3610,14 +3610,9 @@ static int fimc_is_ischain_init_wrap(struct fimc_is_device_ischain *device,
 
 		if (stream_type) {
 			set_bit(FIMC_IS_ISCHAIN_REPROCESSING, &device->state);
-			if (test_bit(FIMC_IS_GROUP_OTF_INPUT, &core->ischain[device->instance - 1].group_3aa.state))
-			    set_bit(FIMC_IS_GROUP_UNMAP, &device->group_3aa.state);
-			else
-			    clear_bit(FIMC_IS_GROUP_UNMAP, &device->group_3aa.state);
 		} else {
 			clear_bit(FIMC_IS_ISCHAIN_REPROCESSING, &device->state);
 			sensor->ischain = device;
-			set_bit(FIMC_IS_GROUP_UNMAP, &device->group_3aa.state);
 		}
 
 		ret = fimc_is_groupmgr_init(device->groupmgr, device);
@@ -3971,11 +3966,9 @@ static int fimc_is_ischain_3aa_reqbufs(void *qdevice,
 	group = &device->group_3aa;
 
 	if (!count) {
-	    if (test_bit(FIMC_IS_GROUP_UNMAP, &group->state)) {
 		ret = fimc_is_itf_unmap(device, GROUP_ID(group->id));
 		if (ret)
 			merr("fimc_is_itf_unmap is fail(%d)", device, ret);
-	    }
 	}
 
 	return ret;

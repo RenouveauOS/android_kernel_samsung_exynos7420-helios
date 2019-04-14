@@ -52,8 +52,7 @@ enum fimc_is_group_state {
 	FIMC_IS_GROUP_REQUEST_FSTOP,
 	FIMC_IS_GROUP_FORCE_STOP,
 	FIMC_IS_GROUP_OTF_INPUT,
-	FIMC_IS_GROUP_OTF_OUTPUT,
-	FIMC_IS_GROUP_UNMAP
+	FIMC_IS_GROUP_OTF_OUTPUT
 };
 
 enum fimc_is_global_group_state {

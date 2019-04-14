@@ -1589,7 +1589,7 @@ static struct v4l2_queryctrl controls[] = {
 		.type = V4L2_CTRL_TYPE_INTEGER,
 		.name = "Specify a LTRP for encoding",
 		.minimum = 0,
-		.maximum = 0xF,
+		.maximum = 4,
 		.step = 1,
 		.default_value = 0,
 	},
@@ -3008,9 +3008,9 @@ static int enc_set_buf_ctrls_val(struct s5p_mfc_ctx *ctx, struct list_head *head
 		}
 		if (buf_ctrl->id == V4L2_CID_MPEG_MFC_H264_USE_LTR) {
 			value = s5p_mfc_read_reg(dev, S5P_FIMV_E_H264_NAL_CONTROL);
-			buf_ctrl->old_val2 = (value >> 11) & 0xF;
-			value &= ~(0xF << 11);
-			value |= (buf_ctrl->val & 0xF) << 11;
+			buf_ctrl->old_val2 = (value >> 11) & 0x7;
+			value &= ~(0x7 << 11);
+			value |= (buf_ctrl->val & 0x7) << 11;
 			s5p_mfc_write_reg(dev, value, S5P_FIMV_E_H264_NAL_CONTROL);
 		}
 
@@ -3193,8 +3193,8 @@ static int enc_recover_buf_ctrls_val(struct s5p_mfc_ctx *ctx,
 		}
 		if (buf_ctrl->id == V4L2_CID_MPEG_MFC_H264_USE_LTR) {
 			value = s5p_mfc_read_reg(dev, S5P_FIMV_E_H264_NAL_CONTROL);
-			value &= ~(0xF << 11);
-			value |= (buf_ctrl->old_val2 & 0xF) << 11;
+			value &= ~(0x7 << 11);
+			value |= (buf_ctrl->old_val2 & 0x7) << 11;
 			s5p_mfc_write_reg(dev, value, S5P_FIMV_E_H264_NAL_CONTROL);
 		}
 	}
