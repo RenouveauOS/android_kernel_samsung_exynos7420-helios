@@ -1346,52 +1346,6 @@ static void s5p_mfc_handle_ref_frame(struct s5p_mfc_ctx *ctx)
 	}
 }
 
-static void s5p_mfc_move_reuse_buffer(struct s5p_mfc_ctx *ctx, int release_index)
-{
-	struct s5p_mfc_dec *dec = ctx->dec_priv;
-	struct s5p_mfc_buf *ref_mb, *tmp_mb;
-	int index;
-
-	list_for_each_entry_safe(ref_mb, tmp_mb, &dec->ref_queue, list) {
-		index = ref_mb->vb.v4l2_buf.index;
-		if (index == release_index) {
-			ref_mb->used = 0;
-
-			list_del(&ref_mb->list);
-			dec->ref_queue_cnt--;
-
-			list_add_tail(&ref_mb->list, &ctx->dst_queue);
-			ctx->dst_queue_cnt++;
-
-			clear_bit(index, &dec->dpb_status);
-			mfc_debug(2, "buffer[%d] is moved to dst queue for reuse\n", index);
-		}
-	}
-}
-
-static void s5p_mfc_handle_reuse_buffer(struct s5p_mfc_ctx *ctx)
-{
-	struct s5p_mfc_dev *dev = ctx->dev;
-	struct s5p_mfc_dec *dec = ctx->dec_priv;
-	unsigned int prev_flag, released_flag = 0;
-	int i;
-
-	if (!dec->is_dynamic_dpb)
-		return;
-
-	prev_flag = dec->dynamic_used;
-	dec->dynamic_used = mfc_get_dec_used_flag();
-	released_flag = prev_flag & (~dec->dynamic_used);
-
-	if (!released_flag)
-		return;
-
-	/* reuse not referenced buf anymore */
-	for (i = 0; i < MFC_MAX_DPBS; i++)
-		if (released_flag & (1 << i))
-			s5p_mfc_move_reuse_buffer(ctx, i);
-}
-
 /* Handle frame decoding interrupt */
 static void s5p_mfc_handle_frame(struct s5p_mfc_ctx *ctx,
 					unsigned int reason, unsigned int err)
@@ -1510,17 +1464,11 @@ static void s5p_mfc_handle_frame(struct s5p_mfc_ctx *ctx,
 
 	if (dec->is_dynamic_dpb) {
 		switch (dst_frame_status) {
+		case S5P_FIMV_DEC_STATUS_DECODING_ONLY:
+			dec->dynamic_used |= mfc_get_dec_used_flag();
+			/* Fall through */
 		case S5P_FIMV_DEC_STATUS_DECODING_DISPLAY:
 			s5p_mfc_handle_ref_frame(ctx);
-			break;
-		case S5P_FIMV_DEC_STATUS_DECODING_ONLY:
-			s5p_mfc_handle_ref_frame(ctx);
-			/*
-			 * Some cases can have many decoding only frames like VP9
-			 * alt-ref frame. So need handling release buffer
-			 * because of DPB full.
-			 */
-			s5p_mfc_handle_reuse_buffer(ctx);
 			break;
 		default:
 			break;
@@ -1550,7 +1498,7 @@ static void s5p_mfc_handle_frame(struct s5p_mfc_ctx *ctx,
 		dec->consumed += s5p_mfc_get_consumed_stream();
 		remained = (unsigned int)(src_buf->vb.v4l2_planes[0].bytesused - dec->consumed);
 
-		if ((dec->consumed > 0) && (remained > STUFF_BYTE) && (err == 0) &&
+		if ((prev_offset == 0) && (remained > STUFF_BYTE) && (err == 0) &&
 				(src_buf->vb.v4l2_planes[0].bytesused > dec->consumed)) {
 			/* Run MFC again on the same buffer */
 			mfc_debug(2, "Running again the same buffer.\n");

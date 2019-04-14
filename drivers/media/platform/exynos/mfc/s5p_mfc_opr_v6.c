@@ -2966,13 +2966,8 @@ static inline int s5p_mfc_run_dec_last_frames(struct s5p_mfc_ctx *ctx)
 		temp_vb = list_entry(ctx->src_queue.next,
 					struct s5p_mfc_buf, list);
 		temp_vb->used = 1;
-		if (dec->consumed)
-			s5p_mfc_set_dec_stream_buffer(ctx,
-				s5p_mfc_mem_plane_addr(ctx, &temp_vb->vb, 0),
-				dec->consumed, dec->remained_size);
-		else
-			s5p_mfc_set_dec_stream_buffer(ctx,
-				s5p_mfc_mem_plane_addr(ctx, &temp_vb->vb, 0), 0, 0);
+		s5p_mfc_set_dec_stream_buffer(ctx,
+			s5p_mfc_mem_plane_addr(ctx, &temp_vb->vb, 0), 0, 0);
 	}
 
 	if (dec->is_dynamic_dpb) {

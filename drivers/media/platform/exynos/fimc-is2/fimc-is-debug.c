@@ -215,7 +215,6 @@ static ssize_t imgdump_debug_read(struct file *file, char __user *user_buf,
 	size_t buf_len, loff_t *ppos)
 {
 	size_t size = 0;
-	int ret = 0;
 
 	if (buf_len <= fimc_is_debug.size)
 		size = buf_len;
@@ -224,11 +223,7 @@ static ssize_t imgdump_debug_read(struct file *file, char __user *user_buf,
 
 	if (size) {
 		vb2_ion_sync_for_device((void *)fimc_is_debug.img_cookie, 0, size, DMA_FROM_DEVICE);
-		ret = copy_to_user(user_buf, (void *)fimc_is_debug.img_kvaddr, size);
-		if (ret) {
-			err("[DBG] failed copying %d bytes of debug log\n", ret);
-			return ret;
-		}
+		memcpy(user_buf, (void *)fimc_is_debug.img_kvaddr, size);
 		info("DUMP : %p, SIZE : %zd\n", (void *)fimc_is_debug.img_kvaddr, size);
 	}
 
