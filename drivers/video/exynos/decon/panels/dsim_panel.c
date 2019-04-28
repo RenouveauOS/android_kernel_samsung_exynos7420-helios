@@ -393,7 +393,7 @@ static int dsim_panel_exitalpm(struct dsim_device *dsim)
 		panel->state = PANEL_STATE_RESUMED;
 	}
 
-	if (panel->ops->exitalpm) {
+	if (panel->ops->enteralpm) {
 		ret = panel->ops->exitalpm(dsim);
 		if (ret) {
 			dsim_err("ERR:%s:failed to exit alpm \n", __func__);
