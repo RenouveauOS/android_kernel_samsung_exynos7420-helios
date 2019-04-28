@@ -51,18 +51,10 @@ export ANDROID_MAJOR_VERSION=$CR_ANDROID
 export PLATFORM_VERSION=$CR_PLATFORM
 export $CR_ARCH
 ##########################################
-# Device specific Variables [SM-N920CIGSLK]
-CR_DTSFILES_N920C="exynos7420-noblelte_eur_open_00.dtb exynos7420-noblelte_eur_open_01.dtb exynos7420-noblelte_eur_open_02.dtb exynos7420-noblelte_eur_open_03.dtb exynos7420-noblelte_eur_open_04.dtb exynos7420-noblelte_eur_open_05.dtb exynos7420-noblelte_eur_open_06.dtb exynos7420-noblelte_eur_open_08.dtb exynos7420-noblelte_eur_open_09.dtb"
-CR_CONFG_N920C=noblelte_defconfig
-CR_VARIANT_N920C=N920C
 # Device specific Variables [SM-G92X]
 CR_DTSFILES_G92X="G92X_universal.dtb"
 CR_CONFG_G92X=G92X_defconfig
 CR_VARIANT_G92X=G92X
-# Device specific Variables [SM-N920P_T_W8]
-CR_DTSFILES_N920P_T_W8="exynos7420-noblelte_usa_00.dtb exynos7420-noblelte_usa_01.dtb exynos7420-noblelte_usa_02.dtb exynos7420-noblelte_usa_03.dtb exynos7420-noblelte_usa_04.dtb exynos7420-noblelte_usa_06.dtb exynos7420-noblelte_usa_07.dtb exynos7420-noblelte_usa_08.dtb exynos7420-noblelte_usa_09.dtb"
-CR_CONFG_N920P_T_W8=noblelte_US_defconfig
-CR_VARIANT_N920P_T_W8=N920P_T_W8
 #####################################################
 
 # Script functions
@@ -147,31 +139,11 @@ clear
 echo "----------------------------------------------"
 echo "$CR_NAME $CR_VERSION Build Script"
 echo "----------------------------------------------"
-PS3='Please select your option (1-4): '
-menuvar=("SM-N920C" "SM-G92X" "SM-N920P_T_W8" "Exit")
+PS3='Please select your option (1-2): '
+menuvar=("SM-G92X" "Exit")
 select menuvar in "${menuvar[@]}"
 do
     case $menuvar in
-        "SM-N920C")
-            clear
-            echo "Starting $CR_VARIANT_N920C kernel build..."
-            CR_VARIANT=$CR_VARIANT_N920C
-            CR_CONFG=$CR_CONFG_N920C
-            CR_DTSFILES=$CR_DTSFILES_N920C
-            BUILD_ZIMAGE
-            BUILD_DTB
-            PACK_BOOT_IMG
-            echo " "
-            echo "----------------------------------------------"
-            echo "$CR_VARIANT kernel build finished."
-            echo "$CR_VARIANT Ready at $CR_OUT"
-            echo "Combined DTB Size = $dtbsz Kb"
-            echo "Combined BOOT Size = $bootsz Kb"
-            echo "Press Any key to end the script"
-            echo "----------------------------------------------"
-            read -n1 -r key
-            break
-            ;;
         "SM-G92X")
             clear
             echo "Starting $CR_VARIANT_G92X kernel build..."
@@ -192,26 +164,6 @@ do
             read -n1 -r key
             break
             ;;
-        "SM-N920P_T_W8")
-            clear
-            echo "Starting $CR_VARIANT_N920P_T_W8 kernel build..."
-            CR_VARIANT=$CR_VARIANT_N920P_T_W8
-            CR_CONFG=$CR_CONFG_N920P_T_W8
-            CR_DTSFILES=$CR_DTSFILES_N920P_T_W8
-            BUILD_ZIMAGE
-            BUILD_DTB
-            PACK_BOOT_IMG
-            echo " "
-            echo "----------------------------------------------"
-            echo "$CR_VARIANT kernel build finished."
-            echo "$CR_VARIANT Ready at $CR_OUT"
-            echo "Combined DTB Size = $dtbsz Kb"
-            echo "Combined BOOT Size = $bootsz Kb"
-            echo "Press Any key to end the script"
-            echo "----------------------------------------------"
-            read -n1 -r key
-            break
-            ;;  
     "Exit")
             break
             ;;
