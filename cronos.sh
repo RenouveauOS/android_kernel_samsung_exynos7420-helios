@@ -59,6 +59,10 @@ CR_VARIANT_N920C=N920X
 CR_DTSFILES_N920P_T_W8="exynos7420-noblelte_usa_00.dtb exynos7420-noblelte_usa_01.dtb exynos7420-noblelte_usa_02.dtb exynos7420-noblelte_usa_03.dtb exynos7420-noblelte_usa_04.dtb exynos7420-noblelte_usa_06.dtb exynos7420-noblelte_usa_07.dtb exynos7420-noblelte_usa_08.dtb exynos7420-noblelte_usa_09.dtb"
 CR_CONFG_N920P_T_W8=noblelte_US_defconfig
 CR_VARIANT_N920P_T_W8=N920P_T_W8
+# Device specific Variables [SM-G928X]
+CR_DTSFILES_G928X="exynos7420-zenlte_eur_open_00.dtb exynos7420-zenlte_eur_open_09.dtb"
+CR_CONFG_G928X=zenlte_defconfig
+CR_VARIANT_G928X=G928X
 #####################################################
 
 # Script functions
@@ -144,7 +148,7 @@ echo "----------------------------------------------"
 echo "$CR_NAME $CR_VERSION Build Script"
 echo "----------------------------------------------"
 PS3='Please select your option (1-4): '
-menuvar=("SM-N920X" "SM-N920P_T_W8" "Exit")
+menuvar=("SM-N920X" "SM-N920P_T_W8" "SM-G928X" "Exit")
 select menuvar in "${menuvar[@]}"
 do
     case $menuvar in
@@ -187,7 +191,27 @@ do
             echo "----------------------------------------------"
             read -n1 -r key
             break
-            ;;  
+            ;;
+        "SM-G928X")
+            clear
+            echo "Starting $CR_VARIANT_G928X kernel build..."
+            CR_VARIANT=$CR_VARIANT_G928X
+            CR_CONFG=$CR_CONFG_G928X
+            CR_DTSFILES=$CR_DTSFILES_G928X
+            BUILD_ZIMAGE
+            BUILD_DTB
+            PACK_BOOT_IMG
+            echo " "
+            echo "----------------------------------------------"
+            echo "$CR_VARIANT kernel build finished."
+            echo "$CR_VARIANT Ready at $CR_OUT"
+            echo "Combined DTB Size = $dtbsz Kb"
+            echo "Combined BOOT Size = $bootsz Kb"           
+            echo "Press Any key to end the script"
+            echo "----------------------------------------------"
+            read -n1 -r key
+            break
+            ;;            
     "Exit")
             break
             ;;
