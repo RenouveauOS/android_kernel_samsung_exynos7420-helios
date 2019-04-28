@@ -65,7 +65,6 @@ security/selinux_n/flask.h
 security/selinux_n/av_permissions.h
 fips_fmp_utils
 drivers/gpu/arm/mali400/ump/arch
-<<<<<<< HEAD
-=======
-
->>>>>>> 3f1b5455d4773... my config
+# Work
+Helios/Out/*.img
+Helios/R/*
