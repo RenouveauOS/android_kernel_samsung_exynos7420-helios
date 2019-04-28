@@ -24,7 +24,6 @@
 #include <plat/devs.h>
 #include <linux/sec_sysfs.h>
 #include <linux/kthread.h>
-#include <linux/variant_detection.h>
 
 #define TEST_MODE_TIME 10000
 #define MAX_INTENSITY		10000
@@ -248,11 +247,7 @@ static struct max77843_haptic_platform_data *of_max77843_haptic_dt(struct device
 
 	printk("%s : start dt parsing\n", __func__);
 
-	if (variant_edge == IS_EDGE)
-		np_haptic = of_find_node_by_name(np_root, "haptic_E");
-	else
-		np_haptic = of_find_node_by_name(np_root, "haptic_F");
-
+	np_haptic = of_find_node_by_name(np_root, "haptic");
 	if (np_haptic == NULL) {
 		pr_err("[VIB] %s : error to get dt node\n", __func__);
 		goto err_parsing_dt;
@@ -623,3 +618,4 @@ module_exit(max77843_haptic_exit);
 MODULE_AUTHOR("ByungChang Cha <bc.cha@samsung.com>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("max77843 haptic driver");
+

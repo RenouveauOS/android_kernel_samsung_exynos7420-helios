@@ -37,7 +37,6 @@
 /****************************************************************/
 
 #include <linux/sec_batt_selfdchg_common.h>
-#include <linux/variant_detection.h>
 
 /******************************************/
 // Samsung Custom Header
@@ -474,42 +473,41 @@ static void sdchg_cs_use_parse_dt(struct device *dev)
 	sdchg_info->voltage_start = SDCHG_VOLTAGE_START;
 	sdchg_info->voltage_end = SDCHG_VOLTAGE_END;
 #else
-        if (variant_edge == NOT_EDGE) {
-		if (of_property_read_u32(data_np, "sdchg,temperature_start",
-								&sdchg_info->temp_start)) {
-			sdchg_info->temp_start = SDCHG_TEMP_START;
-			pr_info("[SDCHG][%s] temp_start dt is Empty (defalut:%d)", 
-				__func__, sdchg_info->temp_start);
-		}
-
-		if (of_property_read_u32(data_np, "sdchg,temperature_end",
-								 &sdchg_info->temp_end)) {
-			sdchg_info->temp_end = SDCHG_TEMP_END;
-			pr_info("[SDCHG][%s] temp_end dt is Empty  (defalut:%d)", 
-				__func__, sdchg_info->temp_end);
-		}
-
-		if (of_property_read_u32(data_np, "sdchg,soc_start",
-								   &sdchg_info->soc_start)) {
-			sdchg_info->soc_start = SDCHG_SOC_START;
-			pr_info("[SDCHG][%s] soc_start dt is Empty  (defalut:%d)", 
-				__func__, sdchg_info->soc_start);
-		}
-
-		if (of_property_read_u32(data_np, "sdchg,soc_end",
-								   &sdchg_info->soc_end)) {
-			sdchg_info->soc_end = SDCHG_SOC_END;
-			pr_info("[SDCHG][%s] soc_end dt is Empty  (defalut:%d)", 
-				__func__, sdchg_info->soc_end);
-		}
-
-		if (of_property_read_u32(data_np, "sdchg,voltage_start",
-								   &sdchg_info->voltage_start)) {
-			sdchg_info->voltage_start = SDCHG_VOLTAGE_START;
-			pr_info("[SDCHG][%s] voltage_start dt is Empty  (defalut:%d)", 
-				__func__, sdchg_info->voltage_start);
-		}
+	if (of_property_read_u32(data_np, "sdchg,temperature_start",
+							&sdchg_info->temp_start)) {
+		sdchg_info->temp_start = SDCHG_TEMP_START;
+		pr_info("[SDCHG][%s] temp_start dt is Empty (defalut:%d)", 
+			__func__, sdchg_info->temp_start);
 	}
+
+	if (of_property_read_u32(data_np, "sdchg,temperature_end",
+							 &sdchg_info->temp_end)) {
+		sdchg_info->temp_end = SDCHG_TEMP_END;
+		pr_info("[SDCHG][%s] temp_end dt is Empty  (defalut:%d)", 
+			__func__, sdchg_info->temp_end);
+	}
+
+	if (of_property_read_u32(data_np, "sdchg,soc_start",
+							   &sdchg_info->soc_start)) {
+		sdchg_info->soc_start = SDCHG_SOC_START;
+		pr_info("[SDCHG][%s] soc_start dt is Empty  (defalut:%d)", 
+			__func__, sdchg_info->soc_start);
+	}
+
+	if (of_property_read_u32(data_np, "sdchg,soc_end",
+							   &sdchg_info->soc_end)) {
+		sdchg_info->soc_end = SDCHG_SOC_END;
+		pr_info("[SDCHG][%s] soc_end dt is Empty  (defalut:%d)", 
+			__func__, sdchg_info->soc_end);
+	}
+
+	if (of_property_read_u32(data_np, "sdchg,voltage_start",
+							   &sdchg_info->voltage_start)) {
+		sdchg_info->voltage_start = SDCHG_VOLTAGE_START;
+		pr_info("[SDCHG][%s] voltage_start dt is Empty  (defalut:%d)", 
+			__func__, sdchg_info->voltage_start);
+	}
+
 	// voltage_end : using swelling_drop_float_voltage value
 	if (of_property_read_u32(np, "battery,swelling_drop_float_voltage",
 							   &sdchg_info->voltage_end)) {

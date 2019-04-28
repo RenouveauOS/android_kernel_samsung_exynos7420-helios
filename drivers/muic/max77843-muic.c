@@ -26,8 +26,9 @@
 #include <linux/interrupt.h>
 #include <linux/err.h>
 #include <linux/platform_device.h>
+#if defined(CONFIG_SWITCH_ANTENNA_IF) || defined(CONFIG_SWITCH_ANTENNA_EARJACK_IF)
 #include <linux/antenna_switch.h>
-#include <linux/variant_detection.h>
+#endif
 
 #include <linux/mfd/max77843.h>
 #include <linux/mfd/max77843-private.h>
@@ -2707,20 +2708,18 @@ static void max77843_muic_detect_dev(struct max77843_muic_data *muic_data, int i
 
 	if (intr == MUIC_INTR_ATTACH) {
 		pr_info("%s:%s ATTACHED\n", MUIC_DEV_NAME, __func__);
-
-		if (variant_aif_required == HAS_AIF)
-		        antenna_switch_work_if(1);
-
+#if defined(CONFIG_SWITCH_ANTENNA_IF) || defined(CONFIG_SWITCH_ANTENNA_EARJACK_IF)
+	        antenna_switch_work_if(1);
+#endif
 		ret = max77843_muic_handle_attach(muic_data, new_dev);
 		if (ret)
 			pr_err("%s:%s cannot handle attach(%d)\n", MUIC_DEV_NAME,
 								__func__, ret);
 	} else {
 		pr_info("%s:%s DETACHED\n", MUIC_DEV_NAME, __func__);
-
-		if (variant_aif_required == HAS_AIF)
-			antenna_switch_work_if(0);
-
+#if defined(CONFIG_SWITCH_ANTENNA_IF) || defined(CONFIG_SWITCH_ANTENNA_EARJACK_IF)
+		antenna_switch_work_if(0);
+#endif
 		ret = max77843_muic_handle_detach(muic_data);
 		if (ret)
 			pr_err("%s:%s cannot handle detach(%d)\n", MUIC_DEV_NAME,
