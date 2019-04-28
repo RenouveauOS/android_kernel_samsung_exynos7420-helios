@@ -62,24 +62,6 @@ log_print "------------------------------------------------------"
 log_print "------------------------------------------------------"
 log_print "**helios boot script started at $( date +"%d-%m-%Y %H:%M:%S" )**"
 
-# Dalvik Auto-Reboot Script
-# Credits to Mwilky
-
-if [ -f /data/magisk.apk ]; then
-	pm install /data/magisk.apk
-	rm /data/magisk.apk
-elif [ -f /data/adb/magisk/magisk.apk ]; then
-	mv /data/adb/magisk/magisk.apk /data/magisk.apk
-	pm install -r /data/magisk.apk
-	rm /data/magisk.apk
-fi;
-
-if [ -z "$(ls -A /data/dalvik-cache/arm64)" ]; then
-   sleep 1
-   reboot
-else
-   log_print "dalvik cache already built, nothing to do"
-fi
    log_print "Mounting"
 # Initial
 mount -o remount,rw -t auto /
