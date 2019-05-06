@@ -54,7 +54,9 @@ export $CR_ARCH
 # Device specific Variables [SM-G92X]
 CR_DTSFILES_G92X="G92X_universal.dtb"
 CR_CONFG_G92X=G92X_defconfig
+CR_CONFG_G92XUS=G92X_us_defconfig
 CR_VARIANT_G92X=G92X
+CR_VARIANT_G92XUS=G92XUS
 #####################################################
 
 # Script functions
@@ -139,8 +141,8 @@ clear
 echo "----------------------------------------------"
 echo "$CR_NAME $CR_VERSION Build Script"
 echo "----------------------------------------------"
-PS3='Please select your option (1-2): '
-menuvar=("SM-G92X" "Exit")
+PS3='Please select your option (1-3): '
+menuvar=("SM-G92X" "SM-G92XUS" "Exit")
 select menuvar in "${menuvar[@]}"
 do
     case $menuvar in
@@ -164,6 +166,26 @@ do
             read -n1 -r key
             break
             ;;
+         "SM-G92XUS")
+            clear
+            echo "Starting $CR_VARIANT_G92X kernel build..."
+            CR_VARIANT=$CR_VARIANT_G92XUS
+            CR_CONFG=$CR_CONFG_G92XUS
+            CR_DTSFILES=$CR_DTSFILES_G92X
+            BUILD_ZIMAGE
+            BUILD_DTB
+            PACK_BOOT_IMG
+            echo " "
+            echo "----------------------------------------------"
+            echo "$CR_VARIANT kernel build finished."
+            echo "$CR_VARIANT Ready at $CR_OUT"
+            echo "Combined DTB Size = $dtbsz Kb"
+            echo "Combined BOOT Size = $bootsz Kb"
+            echo "Press Any key to end the script"
+            echo "----------------------------------------------"
+            read -n1 -r key
+            break
+            ;;           
     "Exit")
             break
             ;;
