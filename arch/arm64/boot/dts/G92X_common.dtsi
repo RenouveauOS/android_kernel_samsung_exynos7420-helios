@@ -148,7 +148,7 @@
 		supports-ddr200-mode;
 		enable-cache-control;
 		use-enable-shift;
-		qos_int_level = <400000>;
+		qos_int_level = <468000>;
 		desc-size = <3>;
 		fifo-depth = <0x40>;
 		card-detect-delay = <200>;
@@ -185,7 +185,7 @@
 		use-fine-tuning;
 		fifo-depth = <0x40>;
 		card-detect-delay = <200>;
-		qos_int_level = <400000>;
+		qos_int_level = <468000>;
 		desc-size = <3>;
 		bypass-for-allpass;
 		fix-fmp-size-mismatch;
@@ -853,7 +853,7 @@
 	ipa_pdata {
 		compatible = "samsung,exynos-ipa";
 
-		control_temp = <45>;
+		control_temp = <90>;
 		temp_threshold = <10>;
 		enabled = <1>;
 		tdp = <3500>;
@@ -2007,9 +2007,9 @@
 			net_boost,node="rmnet0 rmnet1 rmnet2 rmnet3 rmnet4 rmnet5 rmnet6 rmnet7";
 			net_boost,table_size = <3>;
 			net_boost,table= <
-				100 0 0 1066000 0 836000 0 0 1 0
-				200 0 0 1296000 0 1026000 0 0 1 0
-				300 0 0 1500000 0 1552000 0 0 1 0
+				10 0 0 1104000 0 825000 100000 0 1 0 /* 10Mbps little core 1.1G */
+				50 0 0 1104000 0 825000 100000 0 1 0 /* 50Mbps little core 1.1G */
+				100 0 0 1500000 0 825000 100000 0 1 0 /* 100Mbps little core 1.5G */
 				>;
 		};
 		/* Example
@@ -2082,9 +2082,8 @@
 		boot_device@8 {
 			net_boost,label="WIFI RX";
 			net_boost,node="wlan0";
-			net_boost,table_size = <5>;
+			net_boost,table_size = <4>;
 			net_boost,table= <
-				75 1000000 0 800000 0 0 0 0 0 0
 				100 1144000 0 1066000 0 0 0 0 0 0
 				150 1456000 0 1378000 0 0 0 0 0 0
 				200 1664000 0 1586000 0 845000 400000 1 1 1
@@ -2153,7 +2152,7 @@
 
 			/* Time table */
 			input_booster,head_times = <130 130 0>;
-			input_booster,tail_times = <0 0 500>;
+			input_booster,tail_times = <500 500 0>;
 			input_booster,phase_times = <0 0 0>;
 		};
 		booster_key@4 { // Input Booster +
@@ -2171,8 +2170,8 @@
 			input_booster,int_freqs = <0 0>;
 
 			/* Time table */
-			input_booster,head_times = <1000 0>;
-			input_booster,tail_times = <0 500>;
+			input_booster,head_times = <1000 1000>;
+			input_booster,tail_times = <500 500>;
 			input_booster,phase_times = <0 0>;
 		};
 		booster_key@5 {
@@ -2209,8 +2208,8 @@
 			input_booster,int_freqs = <0 0>;
 
 			/* Time table */
-			input_booster,head_times = <130 0>;
-			input_booster,tail_times = <0 500>;
+			input_booster,head_times = <130 130>;
+			input_booster,tail_times = <500 500>;
 			input_booster,phase_times = <0 0>;
 		};
 		booster_key@7 {
@@ -2247,8 +2246,8 @@
 			input_booster,int_freqs = <0 0>;
 
 			/* Time table */
-			input_booster,head_times = <130 0>;
-			input_booster,tail_times = <0 500>;
+			input_booster,head_times = <130 130>;
+			input_booster,tail_times = <500 500>;
 			input_booster,phase_times = <0 0>;
 		}; // Input Booster -
 		/* If you need to add new key type, add it this position */
