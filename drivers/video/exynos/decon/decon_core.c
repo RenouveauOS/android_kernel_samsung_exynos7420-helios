@@ -37,6 +37,13 @@
 #include <linux/debugfs.h>
 #include <linux/of_gpio.h>
 #include <linux/irq.h>
+#ifdef CONFIG_STATE_NOTIFIER
+#include <linux/state_notifier.h>
+#endif
+
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
+#endif
 
 #include <mach/regs-clock.h>
 #include <mach/exynos-pm.h>
@@ -53,7 +60,6 @@
 #include "mdnie_reg.h"
 #include "../../../staging/android/sw_sync.h"
 #include "vpp/vpp_core.h"
-#include <linux/variant_detection.h>
 
 #define SUCCESS_EXYNOS_SMC	2
 #define TRACE_VPP_LOG(d, prot) ({	\
@@ -1088,7 +1094,7 @@ static int decon_get_overlap_cnt(struct decon_device *decon,
 }
 #endif
 
-static void vpp_dump(struct decon_device *decon)
+void vpp_dump(struct decon_device *decon)
 {
 	int i;
 
@@ -1205,24 +1211,23 @@ static int decon_reg_ddi_partial_cmd(struct decon_device *decon, struct decon_wi
 	/* TODO: need to set DSI_IDX */
 	decon_reg_wait_linecnt_is_zero_timeout(decon->id, 0, 35 * 1000);
 	DISP_SS_EVENT_LOG(DISP_EVT_LINECNT_ZERO, &decon->sd, ktime_set(0, 0));
-#ifdef CONFIG_DECON_MIPI_DSI_PKTGO
-	ret = v4l2_subdev_call(decon->output_sd, core, ioctl, DSIM_IOC_PKT_GO_DISABLE, NULL);
-	if (ret)
-		decon_err("Failed to disable Packet-go in %s\n", __func__);
-#endif
 
 #ifdef CONFIG_FB_DSU
 	if( decon->need_DSU_update != DECON_DSU_DONE )
 		decon_dsu_handler(decon);
 #endif
-
+	
 	/* Partial Command */
 	win_rect.x = rect->x;
 	win_rect.y = rect->y;
 	/* w is right & h is bottom */
 	win_rect.w = rect->x + rect->w - 1;
 	win_rect.h = rect->y + rect->h - 1;
-
+#ifdef CONFIG_DECON_MIPI_DSI_PKTGO
+	ret = v4l2_subdev_call(decon->output_sd, core, ioctl, DSIM_IOC_PKT_GO_DISABLE, NULL);
+	if (ret)
+		decon_err("Failed to disable Packet-go in %s\n", __func__);
+#endif
 	ret = v4l2_subdev_call(decon->output_sd, core, ioctl,
 			DSIM_IOC_PARTIAL_CMD, &win_rect);
 	if (ret) {
@@ -1463,9 +1468,6 @@ int decon_enable(struct decon_device *decon)
 			}
 		}
 	}
-
-	if ((decon->id == 0) && (decon->state != DECON_STATE_LPD_EXIT_REQ))
-		flush_kthread_worker(&decon->update_regs_worker);
 #endif
 
 	if (decon->state != DECON_STATE_LPD_EXIT_REQ)
@@ -1857,18 +1859,30 @@ static int decon_blank(int blank_mode, struct fb_info *info)
 	case FB_BLANK_NORMAL:
 		DISP_SS_EVENT_LOG(DISP_EVT_BLANK, &decon->sd, ktime_set(0, 0));
 		ret = decon_disable(decon);
+#ifdef CONFIG_POWERSUSPEND
+		set_power_suspend_state_panel_hook(POWER_SUSPEND_ACTIVE);
+#endif
 		if (ret) {
 			decon_err("failed to disable decon\n");
 			goto blank_exit;
 		}
+#ifdef CONFIG_STATE_NOTIFIER
+		state_suspend();
+#endif
 		break;
 	case FB_BLANK_UNBLANK:
 		DISP_SS_EVENT_LOG(DISP_EVT_UNBLANK, &decon->sd, ktime_set(0, 0));
 		ret = decon_enable(decon);
+#ifdef CONFIG_POWERSUSPEND
+		set_power_suspend_state_panel_hook(POWER_SUSPEND_INACTIVE);
+#endif
 		if (ret) {
 			decon_err("failed to enable decon\n");
 			goto blank_exit;
 		}
+#ifdef CONFIG_STATE_NOTIFIER
+		state_resume();
+#endif
 		break;
 	case FB_BLANK_VSYNC_SUSPEND:
 	case FB_BLANK_HSYNC_SUSPEND:
@@ -3677,10 +3691,6 @@ static void __decon_update_regs(struct decon_device *decon, struct decon_reg_dat
 				regs->wb_dma_buf_data.dma_addr);
 
 	decon_to_psr_info(decon, &psr);
-	if (decon->int_fifo_status == false) {
-		decon_reg_set_int_fifo(decon->id, 1);
-		decon->int_fifo_status = true;
-	}
 	decon_reg_start(decon->id, decon->pdata->dsi_mode, &psr);
 #ifdef CONFIG_DECON_MIPI_DSI_PKTGO
 	if (!decon->id) {
@@ -4081,7 +4091,7 @@ static void decon_change_lcdinfo_by_DSU( struct decon_device *decon, int DSU_mod
 			decon->lcd_info->xres = 720;
 			decon->lcd_info->yres = 1280;
 			break;
-		default:
+		default: 
 			pr_err( "%s: unknown case %d(%d,%d).\n", __func__, DSU_mode, decon->DSU_rect.w, decon->DSU_rect.h );
 		break;
 		}
@@ -4109,7 +4119,7 @@ static void decon_dsu_handler(struct decon_device *decon)
 	/* 1 frame delay after Display-off : change of PPS is showing at once. therefore, PPS change must be next frame of display-off */
 	v4l2_subdev_call(decon->output_sd, core, ioctl, DSIM_IOC_DISPLAY_ONOFF, (void*) 0);
 	usleep_range(17000, 17000);
-#endif
+#endif	
 
 	loop_out = false;
 	while( !loop_out ) {
@@ -4257,7 +4267,7 @@ static int decon_set_win_config(struct decon_device *decon,
 	if( decon->dsu_lock_cnt > 0  ) {
 		decon->dsu_lock_cnt--;
 		if( decon->dsu_lock_cnt == 0 ) {
-#ifdef CONFIG_FB_DSU_NOT_SEAMLESS
+#ifdef CONFIG_FB_DSU_NOT_SEAMLESS			
 			v4l2_subdev_call(decon->output_sd, core, ioctl, DSIM_IOC_DISPLAY_ONOFF, (void*) 1);
 #endif
 		}
@@ -5783,10 +5793,8 @@ static int decon_register_esd_funcion(struct decon_device *decon)
 	esd->err_irq = 0;
 	esd->pcd_gpio = 0;
 	esd->disp_det_gpio = 0;
-	
-	if (variant_edge == NOT_EDGE) {
-		gpio = of_get_named_gpio(dev->of_node, "gpio_pcd", 0);
-	}
+
+	gpio = of_get_named_gpio(dev->of_node, "gpio_pcd", 0);
 	if (gpio_is_valid(gpio)) {
 		decon_info("esd : found gpio_pcd success\n");
 		esd->pcd_irq = gpio_to_irq(gpio);
@@ -6221,7 +6229,6 @@ static int decon_probe(struct platform_device *pdev)
 		call_panel_ops(dsim, displayon, dsim);
 
 decon_init_done:
-		decon->int_fifo_status = false;
 		decon->ignore_vsync = false;
 		decon->disp_ss_log_level = DISP_EVENT_LEVEL_HIGH;
 		if ((decon->id == 0)  && (decon->pdata->psr_mode == DECON_MIPI_COMMAND_MODE)) {

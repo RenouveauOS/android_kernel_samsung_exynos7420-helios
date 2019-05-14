@@ -2252,7 +2252,8 @@ exit_err:
 static int _s6e3ha3_wqhd_dsu_command(struct dsim_device *dsim, int xres, int yres )
 {
 	int ret = 0;
-	unsigned char read_reg[3] = {0xFF,};
+//	struct panel_private *panel = &dsim->priv;
+
 #ifdef CONFIG_HA3_CASET_PASET_CHECK
 	const unsigned char SEQ_HA3_CASET_PASET_GPARAM[] = { 0xB0, 0x13 };
 	const unsigned char REG_HA3_CASET_PASET = 0xFB;
@@ -2270,24 +2271,16 @@ static int _s6e3ha3_wqhd_dsu_command(struct dsim_device *dsim, int xres, int yre
 			dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_HD_00\n", __func__);
 		}
 
-		ret = dsim_read_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_HD_00[0], ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_HD_00) - 1 , read_reg);
-
-		if(read_reg[0] != S6E3HA3_SEQ_DDI_SCALER_HD_00[1]) {
-			dsim_err("%s : mis-match BA register %x %x\n", __func__, read_reg[0], S6E3HA3_SEQ_DDI_SCALER_HD_00[1]);
-			ret = dsim_write_hl_data(dsim, SEQ_TEST_KEY_ON_F0, ARRAY_SIZE(SEQ_TEST_KEY_ON_F0));
-			ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_HD_00, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_HD_00));
-		} else {
-			dsim_info("%s : read value %x\n", __func__, read_reg[0]);
-		}
-
-		ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_HD_01, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_HD_01));
-		if (ret < 0) {
-			dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_HD_01\n", __func__);
-		}
-		ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_HD_02, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_HD_02));
-		if (ret < 0) {
-			dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_HD_02\n", __func__);
-		}
+//		if( panel->alpm_mode ) {
+			ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_HD_01, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_HD_01));
+			if (ret < 0) {
+				dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_HD_01\n", __func__);
+			}
+			ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_HD_02, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_HD_02));
+			if (ret < 0) {
+				dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_HD_02\n", __func__);
+			}
+//		}
 	break;
 	case 1080:
 		dsim_err("%s : xres=%d, yres=%d : FHD\n", __func__, xres, yres );
@@ -2295,39 +2288,22 @@ static int _s6e3ha3_wqhd_dsu_command(struct dsim_device *dsim, int xres, int yre
 		if (ret < 0) {
 			dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_FHD_00\n", __func__);
 		}
-
-		ret = dsim_read_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_FHD_00[0], ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_FHD_00) - 1 , read_reg);
-
-		if(read_reg[0] != S6E3HA3_SEQ_DDI_SCALER_FHD_00[1]) {
-			dsim_err("%s : mis-match BA register %x %x\n", __func__, read_reg[0], S6E3HA3_SEQ_DDI_SCALER_FHD_00[1]);
-			ret = dsim_write_hl_data(dsim, SEQ_TEST_KEY_ON_F0, ARRAY_SIZE(SEQ_TEST_KEY_ON_F0));
-			ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_FHD_00, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_FHD_00));
-		} else {
-			dsim_info("%s : read value %x\n", __func__, read_reg[0]);
-		}
-		ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_FHD_01, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_FHD_01));
-		if (ret < 0) {
-			dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_FHD_01\n", __func__);
-		}
-		ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_FHD_02, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_FHD_02));
-		if (ret < 0) {
-			dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_FHD_02\n", __func__);
-		}
+//		if( panel->alpm_mode ) {
+			ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_FHD_01, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_FHD_01));
+			if (ret < 0) {
+				dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_FHD_01\n", __func__);
+			}
+			ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_FHD_02, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_FHD_02));
+			if (ret < 0) {
+				dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_FHD_02\n", __func__);
+			}
+//		}
 	break;
 	case 1440:
 		dsim_err("%s : xres=%d, yres=%d : WQHD\n", __func__, xres, yres );
 		ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_WQHD_00, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_WQHD_00));
 		if (ret < 0) {
 			dsim_err("%s : fail to write CMD : S6E3HA3_SEQ_DDI_SCALER_WQHD_00\n", __func__);
-		}
-		ret = dsim_read_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_WQHD_00[0], ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_WQHD_00) - 1 , read_reg);
-
-		if(read_reg[0] != S6E3HA3_SEQ_DDI_SCALER_WQHD_00[1]) {
-			dsim_err("%s : mis-match BA register %x %x\n", __func__, read_reg[0], S6E3HA3_SEQ_DDI_SCALER_WQHD_00[1]);
-			ret = dsim_write_hl_data(dsim, SEQ_TEST_KEY_ON_F0, ARRAY_SIZE(SEQ_TEST_KEY_ON_F0));
-			ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_WQHD_00, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_WQHD_00));
-		} else {
-			dsim_info("%s : read value %x\n", __func__, read_reg[0]);
 		}
 	break;
 	default:
@@ -3096,44 +3072,15 @@ probe_exit:
 
 static int s6e3hf3_wqhd_displayon(struct dsim_device *dsim)
 {
-	int ret = 0;
-#ifdef CONFIG_LCD_ALPM
-	struct panel_private *panel = &dsim->priv;
-#endif
+	int     ret = 0;
 
 	dsim_info("MDD : %s was called\n", __func__);
 
-#ifdef CONFIG_LCD_ALPM
-	if (panel->current_alpm && panel->alpm) {
-		 dsim_info("%s : ALPM mode\n", __func__);
-	} else if (panel->current_alpm) {
-		ret = alpm_set_mode(dsim, ALPM_OFF);
-		if (ret) {
-			dsim_err("failed to exit alpm.\n");
-			goto displayon_err;
-		}
-	} else {
-		if (panel->alpm) {
-			ret = alpm_set_mode(dsim, ALPM_ON);
-			if (ret) {
-				dsim_err("failed to initialize alpm.\n");
-				goto displayon_err;
-			}
-		} else {
-			ret = dsim_write_hl_data(dsim, SEQ_DISPLAY_ON, ARRAY_SIZE(SEQ_DISPLAY_ON));
-			if (ret < 0) {
-				dsim_err("%s : fail to write CMD : DISPLAY_ON\n", __func__);
-				goto displayon_err;
-			}
-		}
-	}
-#else
 	ret = dsim_write_hl_data(dsim, SEQ_DISPLAY_ON, ARRAY_SIZE(SEQ_DISPLAY_ON));
 	if (ret < 0) {
 		dsim_err("%s : fail to write CMD : DISPLAY_ON\n", __func__);
 		goto displayon_err;
 	}
-#endif
 
 displayon_err:
 	return ret;
@@ -3236,7 +3183,8 @@ static int s6e3hf3_read_reg_status(struct dsim_device *dsim, bool need_key_unloc
 static int _s6e3hf3_wqhd_dsu_command(struct dsim_device *dsim, int xres, int yres )
 {
 	int ret = 0;
-	unsigned char read_reg[3] = {0xFF, };
+//	struct panel_private *panel = &dsim->priv;
+
 #ifdef CONFIG_HF3_CASET_PASET_CHECK
 	const unsigned char SEQ_HF3_CASET_PASET_GPARAM[] = { 0xB0, 0x13 };
 	const unsigned char REG_HF3_CASET_PASET = 0xFB;
@@ -3256,24 +3204,16 @@ static int _s6e3hf3_wqhd_dsu_command(struct dsim_device *dsim, int xres, int yre
 			dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_HD_00\n", __func__);
 		}
 
-		ret = dsim_read_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_HD_00[0], ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_HD_00) - 1 , read_reg);
-
-		if(read_reg[0] != S6E3HF3_SEQ_DDI_SCALER_HD_00[1]) {
-			dsim_err("%s : mis-match BA register %x %x\n", __func__, read_reg[0], S6E3HF3_SEQ_DDI_SCALER_HD_00[1]);
-			ret = dsim_write_hl_data(dsim, SEQ_TEST_KEY_ON_F0, ARRAY_SIZE(SEQ_TEST_KEY_ON_F0));
-			ret = dsim_write_hl_data(dsim, S6E3HA3_SEQ_DDI_SCALER_HD_00, ARRAY_SIZE(S6E3HA3_SEQ_DDI_SCALER_HD_00));
-		} else {
-			dsim_info("%s : read value %x\n", __func__, read_reg[0]);
-		}
-
-		ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_HD_01, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_HD_01));
-		if (ret < 0) {
-			dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_HD_01\n", __func__);
-		}
-		ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_HD_02, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_HD_02));
-		if (ret < 0) {
-			dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_HD_02\n", __func__);
-		}
+//		if( panel->alpm_mode ) {
+			ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_HD_01, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_HD_01));
+			if (ret < 0) {
+				dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_HD_01\n", __func__);
+			}
+			ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_HD_02, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_HD_02));
+			if (ret < 0) {
+				dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_HD_02\n", __func__);
+			}
+//		}
 	break;
 	case 1080:
 		dsim->glide_display_size = 60;
@@ -3283,25 +3223,16 @@ static int _s6e3hf3_wqhd_dsu_command(struct dsim_device *dsim, int xres, int yre
 		if (ret < 0) {
 			dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_FHD_00\n", __func__);
 		}
-
-		ret = dsim_read_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_FHD_00[0], ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_FHD_00) - 1 , read_reg);
-
-		if(read_reg[0] != S6E3HF3_SEQ_DDI_SCALER_FHD_00[1]) {
-			dsim_err("%s : mis-match BA register %x %x\n", __func__, read_reg[0], S6E3HF3_SEQ_DDI_SCALER_FHD_00[1]);
-			ret = dsim_write_hl_data(dsim, SEQ_TEST_KEY_ON_F0, ARRAY_SIZE(SEQ_TEST_KEY_ON_F0));
-			ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_FHD_00, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_FHD_00));
-		} else {
-			dsim_info("%s : read value %x\n", __func__, read_reg[0]);
-		}
-
-		ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_FHD_01, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_FHD_01));
-		if (ret < 0) {
-			dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_FHD_01\n", __func__);
-		}
-		ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_FHD_02, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_FHD_02));
-		if (ret < 0) {
-			dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_FHD_02\n", __func__);
-		}
+//		if( panel->alpm_mode ) {
+			ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_FHD_01, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_FHD_01));
+			if (ret < 0) {
+				dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_FHD_01\n", __func__);
+			}
+			ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_FHD_02, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_FHD_02));
+			if (ret < 0) {
+				dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_FHD_02\n", __func__);
+			}
+//		}
 	break;
 	case 1440:
 		dsim->glide_display_size = 80;	// framebuffer of LCD is 1600x2560, display area is 1440x2560, glidesize = (1600-1440)/2
@@ -3311,17 +3242,6 @@ static int _s6e3hf3_wqhd_dsu_command(struct dsim_device *dsim, int xres, int yre
 		if (ret < 0) {
 			dsim_err("%s : fail to write CMD : S6E3HF3_SEQ_DDI_SCALER_WQHD_00\n", __func__);
 		}
-
-		ret = dsim_read_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_WQHD_00[0], ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_WQHD_00) - 1 , read_reg);
-
-		if(read_reg[0] != S6E3HF3_SEQ_DDI_SCALER_WQHD_00[1]) {
-			dsim_err("%s : mis-match BA register %x %x\n", __func__, read_reg[0], S6E3HF3_SEQ_DDI_SCALER_WQHD_00[1]);
-			ret = dsim_write_hl_data(dsim, SEQ_TEST_KEY_ON_F0, ARRAY_SIZE(SEQ_TEST_KEY_ON_F0));
-			ret = dsim_write_hl_data(dsim, S6E3HF3_SEQ_DDI_SCALER_WQHD_00, ARRAY_SIZE(S6E3HF3_SEQ_DDI_SCALER_WQHD_00));
-		} else {
-			dsim_info("%s : read value %x\n", __func__, read_reg[0]);
-		}
-
 	break;
 	default:
 		dsim->glide_display_size = 80;	// framebuffer of LCD is 1600x2560, display area is 1440x2560, glidesize = (1600-1440)/2
