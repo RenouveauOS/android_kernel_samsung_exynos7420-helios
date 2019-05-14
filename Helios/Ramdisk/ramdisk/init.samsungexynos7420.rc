@@ -988,9 +988,6 @@ service sensorhubservice /system/bin/sensorhubservice
 # Permission for DRM Key
     chmod 0644 /factory/wv.keys
 
-#ARGOSD network_throughput
-    chown system system /dev/network_throughput
-
 # TSP & Pressure Sensor
     #chown system system /sys/class/sec/tsp/brane
     #chmod 0660 /sys/class/sec/tsp/brane
@@ -1000,12 +997,6 @@ service DIAG-daemon /system/bin/diagexe
     class main
     user root
     group system radio inet net_raw
-
-# ARGOSD
-service argos-daemon /vendor/bin/argosd
-    class main
-    user system
-    group system radio
 
 # emergency firmware update
 on firmware
