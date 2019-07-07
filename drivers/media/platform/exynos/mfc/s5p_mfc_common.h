@@ -51,7 +51,7 @@
 /* Interrupt timeout */
 #define MFC_INT_TIMEOUT		15000
 /* Interrupt short timeout */
-#define MFC_INT_SHORT_TIMEOUT	800
+#define MFC_INT_SHORT_TIMEOUT	3000
 /* Busy wait timeout */
 #define MFC_BW_TIMEOUT		500
 /* Watchdog interval */
