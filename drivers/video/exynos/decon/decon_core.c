@@ -4386,9 +4386,6 @@ windows_config:
 		decon_mdnie_frame_update(decon->mdnie, decon->lcd_info->xres, decon->lcd_info->yres);
 #endif
 
-#ifdef CONFIG_CPU_INPUT_BOOST
-	cpu_input_boost_kick();
-#endif
 #ifdef CONFIG_DEVFREQ_BOOST
 	devfreq_boost_kick(DEVFREQ_EXYNOS_MIF);
 #endif
