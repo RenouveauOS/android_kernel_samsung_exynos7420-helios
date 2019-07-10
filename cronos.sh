@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Cronos Build Script V3.1
+# Cronos Build Script V3.2
 # For Exynos7420
 # Coded by BlackMesa/AnanJaser1211 @2019
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,13 +83,16 @@ BUILD_ZIMAGE()
 	echo " "
 	echo "Building zImage for $CR_VARIANT"
 	export LOCALVERSION=-$CR_NAME-$CR_VERSION-$CR_VARIANT-$CR_DATE
-    make  $CR_CONFG 
+	make  $CR_CONFG
 	make -j$CR_JOBS
-	if [ ! -e ./arch/arm64/boot/Image ]; then
+	if [ ! -e $CR_KERNEL ]; then
 	exit 0;
-	echo "zImage Failed to Compile"
+	echo "Image Failed to Compile"
 	echo " Abort "
 	fi
+	du -k "$CR_KERNEL" | cut -f1 >sizT
+	sizT=$(head -n 1 sizT)
+	rm -rf sizT      
 	echo " "
 	echo "----------------------------------------------"
 }
@@ -101,14 +104,18 @@ BUILD_DTB()
 	# Use the DTS list provided in the build script.
 	# This source does not compile dtbs while doing Image
 	make $CR_DTSFILES
-	./scripts/dtbTool/dtbTool -o ./boot.img-dtb -d $CR_DTS/ -s 2048
-	du -k "./boot.img-dtb" | cut -f1 >dtbsz
-	dtbsz=$(head -n 1 dtbsz)
-	rm -rf dtbsz
-	echo "Combined DTB Size = $dtbsz Kb"
+	./scripts/dtbTool/dtbTool -o $CR_DTB -d $CR_DTS/ -s 2048
+	if [ ! -e $CR_DTB ]; then
+	exit 0;
+	echo "DTB Failed to Compile"
+	echo " Abort "
+	fi    
 	rm -rf $CR_DTS/.*.tmp
 	rm -rf $CR_DTS/.*.cmd
 	rm -rf $CR_DTS/*.dtb
+	du -k "$CR_DTB" | cut -f1 >sizdT
+	sizdT=$(head -n 1 sizdT)    
+	rm -rf sizdT
 	echo " "
 	echo "----------------------------------------------"
 }
@@ -127,13 +134,12 @@ PACK_BOOT_IMG()
 	$CR_AIK/repackimg.sh
 	# Remove red warning at boot
 	echo -n "SEANDROIDENFORCE" » $CR_AIK/image-new.img
-    # Calculate Boot.img Size
-    du -k "$CR_AIK/image-new.img" | cut -f1 >bootsz
-    bootsz=$(head -n 1 bootsz)
-    rm -rf bootsz
 	# Move boot.img to out dir
 	mv $CR_AIK/image-new.img $CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img
-    echo " "
+	du -k "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img" | cut -f1 >sizkT
+	sizkT=$(head -n 1 sizkT)
+	rm -rf sizkT
+	echo " "
 	$CR_AIK/cleanup.sh
 }
 # Main Menu
@@ -158,9 +164,10 @@ do
             echo " "
             echo "----------------------------------------------"
             echo "$CR_VARIANT kernel build finished."
-            echo "$CR_VARIANT Ready at $CR_OUT"
-            echo "Combined DTB Size = $dtbsz Kb"
-            echo "Combined BOOT Size = $bootsz Kb"
+            echo "Compiled DTB Size = $sizdT Kb"
+            echo "Kernel Image Size = $sizT Kb"
+            echo "Boot Image   Size = $sizkT Kb"
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
             echo "Press Any key to end the script"
             echo "----------------------------------------------"
             read -n1 -r key
@@ -178,15 +185,16 @@ do
             echo " "
             echo "----------------------------------------------"
             echo "$CR_VARIANT kernel build finished."
-            echo "$CR_VARIANT Ready at $CR_OUT"
-            echo "Combined DTB Size = $dtbsz Kb"
-            echo "Combined BOOT Size = $bootsz Kb"
+            echo "Compiled DTB Size = $sizdT Kb"
+            echo "Kernel Image Size = $sizT Kb"
+            echo "Boot Image   Size = $sizkT Kb"
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
             echo "Press Any key to end the script"
             echo "----------------------------------------------"
             read -n1 -r key
             break
-            ;;           
-    "Exit")
+            ;;        
+            "Exit")
             break
             ;;
         *) echo Invalid option.;;
