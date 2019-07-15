@@ -59,6 +59,10 @@ CR_VARIANT_N920C=N920X
 CR_DTSFILES_N920P_T_W8="exynos7420-noblelte_usa_00.dtb exynos7420-noblelte_usa_01.dtb exynos7420-noblelte_usa_02.dtb exynos7420-noblelte_usa_03.dtb exynos7420-noblelte_usa_04.dtb exynos7420-noblelte_usa_06.dtb exynos7420-noblelte_usa_07.dtb exynos7420-noblelte_usa_08.dtb exynos7420-noblelte_usa_09.dtb"
 CR_CONFG_N920P_T_W8=noblelte_US_defconfig
 CR_VARIANT_N920P_T_W8=N920P_T_W8
+# Device specific Variables [SM-N9208]
+CR_DTSFILES_N9208="exynos7420-noblelte_sea_xtc_09.dtb"
+CR_CONFG_N9208=noblelte08_defconfig
+CR_VARIANT_N9208=N9208
 # Device specific Variables [SM-G928X]
 CR_DTSFILES_G928X="exynos7420-zenlte_eur_open_00.dtb exynos7420-zenlte_eur_open_09.dtb"
 CR_CONFG_G928X=zenlte_defconfig
@@ -153,8 +157,8 @@ clear
 echo "----------------------------------------------"
 echo "$CR_NAME $CR_VERSION Build Script"
 echo "----------------------------------------------"
-PS3='Please select your option (1-4): '
-menuvar=("SM-N920X" "SM-N920P_T_W8" "SM-G928X" "Exit")
+PS3='Please select your option (1-5): '
+menuvar=("SM-N920X" "SM-N9208" "SM-N920P_T_W8" "SM-G928X" "Exit")
 select menuvar in "${menuvar[@]}"
 do
     case $menuvar in
@@ -179,6 +183,27 @@ do
             read -n1 -r key
             break
             ;;
+        "SM-N9208")
+            clear
+            echo "Starting $CR_VARIANT_N9208 kernel build..."
+            CR_VARIANT=$CR_VARIANT_N9208
+            CR_CONFG=$CR_CONFG_N9208
+            CR_DTSFILES=$CR_DTSFILES_N9208
+            BUILD_ZIMAGE
+            BUILD_DTB
+            PACK_BOOT_IMG
+            echo " "
+            echo "----------------------------------------------"
+            echo "$CR_VARIANT kernel build finished."
+            echo "Compiled DTB Size = $sizdT Kb"
+            echo "Kernel Image Size = $sizT Kb"
+            echo "Boot Image   Size = $sizkT Kb"
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
+            echo "Press Any key to end the script"
+            echo "----------------------------------------------"
+            read -n1 -r key
+            break
+            ;;          
         "SM-N920P_T_W8")
             clear
             echo "Starting $CR_VARIANT_N920P_T_W8 kernel build..."
