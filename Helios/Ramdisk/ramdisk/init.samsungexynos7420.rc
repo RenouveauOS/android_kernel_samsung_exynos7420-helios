@@ -332,7 +332,7 @@ on boot
     # write /proc/sys/vm/min_free_order_shift 1
 
 # SSWAP
-    write /proc/sys/vm/swappiness 190
+    write /proc/sys/vm/swappiness 200
 
     # IPSec for VOLTE
     chown root system /dev/socket
@@ -615,9 +615,6 @@ on boot
 
 # On-Board DM
     chmod 6755 /system/bin/dmm_v2
-
-# SSWAP
-    write /proc/sys/vm/swappiness 160
 
     # FM Radio
     chmod 0640 /dev/fmradio
