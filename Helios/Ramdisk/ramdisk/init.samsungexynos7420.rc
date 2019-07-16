@@ -375,12 +375,17 @@ on boot
     chown radio system /sys/devices/platform/exynos7-devfreq-isp/devfreq/exynos7-devfreq-isp/max_freq
     chmod 664 /sys/devices/platform/exynos7-devfreq-isp/devfreq/exynos7-devfreq-isp/max_freq
 
+    # Disable GPU DVFS
     chown radio system /sys/devices/14ac0000.mali/dvfs_table
     chmod 0664 /sys/devices/14ac0000.mali/dvfs_table
     chown radio system /sys/devices/14ac0000.mali/dvfs_min_lock
-    chmod 0664 /sys/devices/14ac0000.mali/dvfs_min_lock
+    chmod 000 /sys/devices/14ac0000.mali/dvfs_min_lock
     chown radio system /sys/devices/14ac0000.mali/dvfs_max_lock
-    chmod 0664 /sys/devices/14ac0000.mali/dvfs_max_lock
+    chmod 000 /sys/devices/14ac0000.mali/dvfs_max_lock
+    chmod 000 /sys/devices/14ac0000.mali/dvfs_max_lock_status
+    chmod 000 /sys/devices/14ac0000.mali/dvfs_min_lock_status
+    chmod 000 /sys/devices/14ac0000.mali/dvfs_period
+    
 
     chown radio system /sys/devices/system/sec_os_ctrl/migrate_os
     chmod 664 /sys/devices/system/sec_os_ctrl/migrate_os
