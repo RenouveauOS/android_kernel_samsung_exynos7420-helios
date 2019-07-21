@@ -24,6 +24,12 @@ LOGFILE=/data/helios/boot.log
 REBOOTLOGFILE=/data/helios/reboot.log
 nuked=/system/nuked
 
+if [ -e /data/helios ]; then
+for FILE in /data/helios/*; do
+  $RUN rm -f $FILE
+done;
+fi
+
 log_print() {
   echo "$1"
   echo "$1" >> $LOGFILE
@@ -32,6 +38,9 @@ rebootlog_print() {
   echo "$1"
   echo "$1" >> $REBOOTLOGFILE
 }
+
+log_print "------------------------------------------------------"
+log_print "**helios boot script started at $( date +"%d-%m-%Y %H:%M:%S" )**"
 
    log_print "Creat Dirs"
 
@@ -52,16 +61,6 @@ fi
 if [ -e /data/helios/Refined_logger.log ]; then
   cp "/data/helios/Refined_logger.log" "/data/heliosLogcat/Refined_Logger_$(date +"%d-%m-%Y %H:%M:%S").log"
 fi
-
-for FILE in /data/helios/*; do
-	$RUN rm -f $FILE
-done;
-
-log_print "------------------------------------------------------"
-
-
-log_print "------------------------------------------------------"
-log_print "**helios boot script started at $( date +"%d-%m-%Y %H:%M:%S" )**"
 
    log_print "Mounting"
 # Initial
@@ -161,11 +160,6 @@ su -c "pm enable com.google.android.gsf/.update.SystemUpdateService"
 su -c "pm enable com.google.android.gsf/.update.SystemUpdateService$Receiver"
 su -c "pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeReceiver"
 
-   log_print "Start RefinedLogger"
-
-# RefinedLogger
-/system/bin/logcat *:E > /data/helios/Refined_logger.log
-
 # if its first system-boot , do stuff
 if [ ! -e $nuked ];then
    log_print "Reset Display to WQHD"
@@ -183,6 +177,11 @@ mount -o remount,ro -t auto /system
 mount -o remount,rw /data
 mount -o remount,rw /cache
 
+   log_print "Start RefinedLogger"
+
    log_print "**helios early boot script finished at $( date +"%d-%m-%Y %H:%M:%S" )**"
    log_print "------------------------------------------------------"
+
+   # RefinedLogger
+/system/bin/logcat *:E > /data/helios/Refined_logger.log
 
