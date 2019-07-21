@@ -35,13 +35,7 @@ service main /sbin/helios.sh
     user root
     seclabel u:r:init:s0
     oneshot
-    disabled
-
-service perm /sbin/perm.sh
-    user root
-    seclabel u:r:init:s0
-    oneshot
-    disabled      
+    disabled     
 
 service zipalign /sbin/zipalign.sh
     user root
