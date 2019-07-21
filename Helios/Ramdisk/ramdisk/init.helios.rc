@@ -12,9 +12,11 @@ on boot
 
 on property:sys.boot_completed=1
 
-   # Restore Stock GPU Freq
-   write /sys/devices/14ac0000.mali/dvfs_max_lock 700
-   write /sys/devices/14ac0000.mali/dvfs_min_lock 266
+   # GPU
+   write /sys/kernel/gpu/gpu_min_clock 266
+   write /sys/kernel/gpu/gpu_max_clock 700
+   write /sys/devices/11400000.mali/power_policy "always_on"
+   write /sys/devices/11400000.mali/highspeed_load 90
 
    # WifiLoader
    start wifiloader
