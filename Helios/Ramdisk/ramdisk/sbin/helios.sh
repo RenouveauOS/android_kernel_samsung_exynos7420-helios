@@ -22,6 +22,7 @@ export PATH
 RUN=/sbin/busybox;
 LOGFILE=/data/helios/boot.log
 REBOOTLOGFILE=/data/helios/reboot.log
+nuked=/system/nuked
 
 log_print() {
   echo "$1"
@@ -164,6 +165,15 @@ su -c "pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeRe
 
 # RefinedLogger
 /system/bin/logcat *:E > /data/helios/Refined_logger.log
+
+# if its first system-boot , do stuff
+if [ ! -e $nuked ];then
+   log_print "Reset Display to WQHD"
+   wm density 560
+   wm size 1440x2560
+# set the flag for system being edited already
+   echo "nuked" > /system/nuked  
+fi   
 
    log_print "Remount"
 
