@@ -34,15 +34,14 @@
 #endif
 #endif /* CONFIG_EXYNOS_THERMAL */
 
-#ifdef CONFIG_EXYNOS_BUSMONITOR
-#include <linux/exynos-busmon.h>
+#ifdef CONFIG_EXYNOS_NOC_DEBUGGING
+#include <linux/exynos-noc.h>
 #endif
-
 extern struct kbase_device *pkbdev;
 
 #ifdef CONFIG_EXYNOS_THERMAL
-static int gpu_tmu_hot_check_and_work(struct kbase_device *kbdev,
-		unsigned long event, unsigned long index) {
+static int gpu_tmu_hot_check_and_work(struct kbase_device *kbdev, unsigned long event)
+{
 #ifdef CONFIG_MALI_DVFS
 	struct exynos_context *platform;
 	int lock_clock;
@@ -56,19 +55,29 @@ static int gpu_tmu_hot_check_and_work(struct kbase_device *kbdev,
 		return -ENODEV;
 
 	switch (event) {
-	case GPU_THROTTLING:
-		lock_clock = platform->tmu_lock_clk[index];
-		exynos_ss_thermal(NULL, 0, cooling_device_name, lock_clock);
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "THROTTLING[%lu]\n", index);
-		break;
-	case GPU_TRIPPING:
-		lock_clock = platform->tmu_lock_clk[TRIPPING];
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "TRIPPING\n");
-		break;
-	default:
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u,
-			"%s: wrong event, %lu\n", __func__, event);
-		return 0;
+		case GPU_THROTTLING1:
+			lock_clock = platform->tmu_lock_clk[THROTTLING1];
+			GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "THROTTLING1\n");
+			break;
+		case GPU_THROTTLING2:
+			lock_clock = platform->tmu_lock_clk[THROTTLING2];
+			GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "THROTTLING2\n");
+			break;
+		case GPU_THROTTLING3:
+			lock_clock = platform->tmu_lock_clk[THROTTLING3];
+			GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "THROTTLING3\n");
+			break;
+		case GPU_THROTTLING4:
+			lock_clock = platform->tmu_lock_clk[THROTTLING4];
+			GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "THROTTLING4\n");
+			break;
+		case GPU_TRIPPING:
+			lock_clock = platform->tmu_lock_clk[TRIPPING];
+			GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "TRIPPING\n");
+			break;
+		default:
+			GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: wrong event, %lu\n", __func__, event);
+			return 0;
 	}
 
 	gpu_dvfs_clock_lock(GPU_DVFS_MAX_LOCK, TMU_LOCK, lock_clock);
@@ -108,12 +117,12 @@ static int gpu_tmu_notifier(struct notifier_block *notifier,
 		platform->voltage_margin = platform->gpu_default_vol_margin;
 	} else if (event == GPU_NORMAL) {
 		gpu_tmu_normal_work(pkbdev);
-	} else if (event == GPU_THROTTLING || event == GPU_TRIPPING) {
-		if (gpu_tmu_hot_check_and_work(pkbdev, event, index))
+	} else if (event >= GPU_THROTTLING1 && event <= GPU_TRIPPING) {
+		if (gpu_tmu_hot_check_and_work(pkbdev, event))
 			GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: failed to open device", __func__);
 	}
 
-	GPU_LOG(DVFS_DEBUG, LSI_TMU_VALUE, 0u, event, "tmu event %lu, level %lu\n", event, index);
+	GPU_LOG(DVFS_DEBUG, LSI_TMU_VALUE, 0u, event, "tmu event %ld\n", event);
 
 	gpu_set_target_clk_vol(platform->cur_clock, false);
 

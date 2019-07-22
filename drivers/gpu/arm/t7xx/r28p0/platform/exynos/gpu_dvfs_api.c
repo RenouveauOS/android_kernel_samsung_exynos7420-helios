@@ -16,23 +16,7 @@
  */
 
 #include <mali_kbase.h>
-#if defined (CONFIG_SOC_EXYNOS8890)
-#include <linux/apm-exynos.h>
-#ifdef CONFIG_EXYNOS8890_BTS_OPTIMIZATION
-#include <soc/samsung/bts.h>
-#endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
-#include <mach/pm_domains-cal.h>
-#include <../pwrcal/S5E8890/S5E8890-vclk.h>
-#else
-#include <soc/samsung/pm_domains-cal.h>
-#include <S5E8890/S5E8890-vclk.h>
-#include <soc/samsung/asv-exynos.h>
-#endif
-#else
 #include <mach/apm-exynos.h>
-#endif
-
 #include <mach/asv-exynos.h>
 
 #include "mali_kbase_platform.h"
@@ -40,22 +24,6 @@
 #include "gpu_dvfs_handler.h"
 #include "gpu_dvfs_governor.h"
 
-#if defined (CONFIG_SOC_EXYNOS8890)
-#define GPU_SET_CLK_VOL(kbdev, prev_clk, clk, vol)			\
-({			\
-	if (prev_clk < clk) {			\
-		gpu_control_set_m_voltage(kbdev, clk);			\
-		gpu_control_set_voltage(kbdev, vol);			\
-		cal_dfs_set_ema(dvfs_g3d, vol);				\
-		gpu_control_set_clock(kbdev, clk);			\
-	} else {			\
-		gpu_control_set_clock(kbdev, clk);			\
-		cal_dfs_set_ema(dvfs_g3d, vol);				\
-		gpu_control_set_voltage(kbdev, vol);			\
-		gpu_control_set_m_voltage(kbdev, clk);			\
-	}			\
-})
-#else
 #define GPU_SET_CLK_VOL(kbdev, prev_clk, clk, vol)			\
 ({			\
 	if (prev_clk < clk) {			\
@@ -68,7 +36,6 @@
 		gpu_control_set_voltage(kbdev, vol);			\
 	}			\
 })
-#endif
 
 extern struct kbase_device *pkbdev;
 

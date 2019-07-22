@@ -18,10 +18,11 @@
 #include <mali_kbase.h>
 
 #include <linux/fb.h>
+#include <linux/ipa.h>
 #include <linux/sysfs_helpers.h>
 
-#if defined(CONFIG_EXYNOS_THERMAL) && defined(CONFIG_GPU_THERMAL) && defined(CONFIG_MALI_DEBUG_KERNEL_SYSFS)
-#include "exynos_tmu.h"
+#if defined(CONFIG_EXYNOS_THERMAL) && defined(CONFIG_MALI_DEBUG_KERNEL_SYSFS)
+#include "cal_tmu7420.h"
 #endif
 
 #include "mali_kbase_platform.h"
@@ -33,16 +34,16 @@
 #include <linux/ipa.h>
 #endif /* CONFIG_CPU_THERMAL_IPA */
 #include "gpu_custom_interface.h"
+#include <mach/apm-exynos.h>
+#include <mach/asv-exynos.h>
 
-#ifdef CONFIG_SOC_EXYNOS8890
-#define GPU_MAX_VOLT		1000000
+#ifdef CONFIG_SOC_EXYNOS7420
+#define GPU_MAX_VOLT		925000
 #define GPU_MIN_VOLT		500000
 #define GPU_VOLT_STEP		6250
 #else
 #error "Please define gpu voltage ranges for current SoC."
 #endif
-
-#include <soc/samsung/pm_domains-cal.h>
 
 extern struct kbase_device *pkbdev;
 
@@ -309,7 +310,6 @@ static ssize_t set_volt_table(struct device *dev, struct device_attribute *attr,
 		}
 	}
 
-	ipa_update();
 	spin_unlock_irqrestore(&platform->gpu_dvfs_spinlock, flags);
 
 	return count;

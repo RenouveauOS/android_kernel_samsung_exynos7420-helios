@@ -21,6 +21,7 @@
 #include <linux/pm_qos.h>
 #include <linux/pm_domain.h>
 #include <linux/clk.h>
+#include <mach/pm_domains.h>
 #if defined(CONFIG_SOC_EXYNOS8890) && defined(CONFIG_PWRCAL)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
 #include <../pwrcal/pwrcal.h>
