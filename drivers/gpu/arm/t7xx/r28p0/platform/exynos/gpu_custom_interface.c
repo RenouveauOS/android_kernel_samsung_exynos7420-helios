@@ -22,7 +22,7 @@
 #include <linux/sysfs_helpers.h>
 
 #if defined(CONFIG_EXYNOS_THERMAL) && defined(CONFIG_MALI_DEBUG_KERNEL_SYSFS)
-#include "cal_tmu7420.h"
+#include "../../../../thermal/cal_tmu.h"
 #endif
 
 #include "mali_kbase_platform.h"
