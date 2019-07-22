@@ -28,7 +28,7 @@
 # Where xxx is the platform name is the name set in MALI_PLATFORM_THIRDPARTY_NAME
 #
 config EXYNOS_SOC_NAME
-    depends on MALI_T8XX
+    depends on MALI_T7XX
     string "Third party soc name"
     help
       soc name.
@@ -36,7 +36,7 @@ config EXYNOS_SOC_NAME
 # { SRUK-MALI_SYSTRACE_SUPPORT
 config MALI_SYSTRACE_SUPPORT
     bool "Enable Exynos systrace Debug support"
-    depends on MALI_T8XX
+    depends on MALI_T7XX
     default y
     help
       Enable systrace marker in kernel
@@ -51,7 +51,7 @@ config MALI_SEC_HWCNT
 
 config MALI_DVFS
     bool "Enable EXYNOS DVFS"
-    depends on MALI_T8XX
+    depends on MALI_T7XX
     default n
     help
       Choose this option to enable DVFS in the Mali Midgard DDK.
@@ -74,7 +74,7 @@ config MALI_EXYNOS_TRACE
 
 config MALI_DEBUG_SYS
     bool "Enable sysfs for the Mali Midgard DDK "
-    depends on MALI_T8XX && SYSFS
+    depends on MALI_T7XX && SYSFS
     default y
     help
       Enables sysfs for the Mali Midgard DDK. Set/Monitor the Mali Midgard DDK

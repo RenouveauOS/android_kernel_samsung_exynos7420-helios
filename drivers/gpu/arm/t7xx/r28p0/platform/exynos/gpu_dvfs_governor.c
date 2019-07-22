@@ -17,17 +17,7 @@
 
 #include <mali_kbase.h>
 
-#ifdef CONFIG_MALI_DVFS
-#ifdef CONFIG_PWRCAL
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
-#include <../pwrcal/S5E8890/S5E8890-vclk.h>
-#include <../pwrcal/pwrcal.h>
-#else
-#include <S5E8890/S5E8890-vclk.h>
-#include <pwrcal.h>
-#endif
-#endif
-#endif
+#include <mach/asv-exynos.h>
 
 #include "mali_kbase_platform.h"
 #include "gpu_dvfs_handler.h"
