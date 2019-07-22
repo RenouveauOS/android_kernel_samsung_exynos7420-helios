@@ -58,7 +58,7 @@ CR_VARIANT_N920C=N920X
 # Device specific Variables [SM-N920P_T_W8]
 CR_DTSFILES_N920P_T_W8="exynos7420-noblelte_usa_00.dtb exynos7420-noblelte_usa_01.dtb exynos7420-noblelte_usa_02.dtb exynos7420-noblelte_usa_03.dtb exynos7420-noblelte_usa_04.dtb exynos7420-noblelte_usa_06.dtb exynos7420-noblelte_usa_07.dtb exynos7420-noblelte_usa_08.dtb exynos7420-noblelte_usa_09.dtb"
 CR_CONFG_N920P_T_W8=noblelte_US_defconfig
-CR_VARIANT_N920P_T_W8=N920P_T_W8
+CR_VARIANT_N920P_T_W8=N920PTW8
 # Device specific Variables [SM-N9208]
 CR_DTSFILES_N9208="exynos7420-noblelte_sea_xtc_09.dtb"
 CR_CONFG_N9208=noblelte08_defconfig
@@ -158,7 +158,7 @@ echo "----------------------------------------------"
 echo "$CR_NAME $CR_VERSION Build Script"
 echo "----------------------------------------------"
 PS3='Please select your option (1-5): '
-menuvar=("SM-N920X" "SM-N9208" "SM-N920P_T_W8" "SM-G928X" "Exit")
+menuvar=("SM-N920X" "SM-N9208" "SM-N920PTW8" "SM-G928X" "Exit")
 select menuvar in "${menuvar[@]}"
 do
     case $menuvar in
@@ -204,7 +204,7 @@ do
             read -n1 -r key
             break
             ;;          
-        "SM-N920P_T_W8")
+        "SM-N920PTW8")
             clear
             echo "Starting $CR_VARIANT_N920P_T_W8 kernel build..."
             CR_VARIANT=$CR_VARIANT_N920P_T_W8
