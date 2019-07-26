@@ -2325,28 +2325,41 @@ static ssize_t show_kernel_sysfs_gpu_model(struct kobject *kobj, struct kobj_att
 		product_id);
 }
 
-#if defined(CONFIG_EXYNOS_THERMAL) && defined(CONFIG_GPU_THERMAL)
+#if defined(CONFIG_EXYNOS_THERMAL)
 
-extern struct thermal_sensor_conf *gpu_thermal_conf_ptr;
+extern struct exynos_tmu_data {
+    struct exynos_tmu_platform_data *pdata;
+    struct resource *mem[EXYNOS_TMU_COUNT];
+    void __iomem *base[EXYNOS_TMU_COUNT];
+    int irq[EXYNOS_TMU_COUNT];
+    enum soc_type soc;
+    struct work_struct irq_work;
+    struct mutex lock;
+    struct cal_tmu_data *cal_data;
+} *gpu_thermal_data_ptr;
 
 static ssize_t show_kernel_sysfs_gpu_temp(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	ssize_t ret = 0;
-	int gpu_temp = 0;
+	static int gpu_temp = 0;
+	int gpu_temp_retVal = 0;
 	int gpu_temp_int = 0;
 	int gpu_temp_point = 0;
-	void *data = NULL;
+	struct exynos_tmu_data *data = NULL;
 
-
-	if (!gpu_thermal_conf_ptr) {
+	if (gpu_thermal_data_ptr == NULL) {
 		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "[Kernel group SYSFS] thermal driver does not ready\n");
 		return -ENODEV;
 	}
 
-	data = gpu_thermal_conf_ptr->driver_data;
-	gpu_temp = gpu_thermal_conf_ptr->read_temperature(data);
+	data = gpu_thermal_data_ptr;
+	mutex_lock(&data->lock);
+	gpu_temp_retVal = cal_tmu_read(data->cal_data, EXYNOS_GPU_NUMBER);
+	mutex_unlock(&data->lock);
 
-	gpu_temp = gpu_temp * MCELSIUS;
+	if (gpu_temp_retVal > 1) {
+		gpu_temp = gpu_temp_retVal * MCELSIUS;
+	}
 
 	gpu_temp_int = gpu_temp / 1000;
 	gpu_temp_point = gpu_temp % gpu_temp_int;
@@ -2394,8 +2407,9 @@ static struct kobj_attribute gpu_model_attribute =
 	__ATTR(gpu_model, S_IRUGO, show_kernel_sysfs_gpu_model, NULL);
 
 
-static struct attribute *attrs[] = {
-#if defined(CONFIG_EXYNOS_THERMAL) && defined(CONFIG_GPU_THERMAL)
+static struct attribute * attrs [] =
+{
+#if defined(CONFIG_EXYNOS_THERMAL)
 	&gpu_temp_attribute.attr,
 #endif
 #if defined(CONFIG_MALI_DVFS)

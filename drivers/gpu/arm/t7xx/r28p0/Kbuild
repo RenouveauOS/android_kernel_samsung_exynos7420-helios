@@ -28,6 +28,8 @@ KBASE_PATH = $(src)
 KBASE_PLATFORM_PATH = $(KBASE_PATH)/platform_dummy
 UMP_PATH = $(src)/../../../base
 
+THERMAL_PATH = $(srctree)/drivers/thermal/
+
 # Set up defaults if not defined by build system
 MALI_CUSTOMER_RELEASE ?= 1
 MALI_USE_CSF ?= 0
@@ -54,10 +56,6 @@ DEFINES +=-DMALI_KBASE_PLATFORM_PATH=$(src)/platform/$(CONFIG_MALI_PLATFORM_NAME
 endif
 
 DEFINES += -I$(srctree)/drivers/staging/android
-
-# MALI_SEC_INTEGRATION
-THERMAL_PATH = $(srctree)/drivers/thermal/samsung/
-DEFINES += -I$(srctree)/drivers/soc/samsung/pwrcal
 
 DEFINES += -DMALI_KBASE_BUILD
 
