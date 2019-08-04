@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Cronos Build Script V3.2
+# Cronos Build Script V3.3
 # For Exynos7420
 # Coded by BlackMesa/AnanJaser1211 @2019
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,10 +33,10 @@ CR_KERNEL=$CR_DIR/arch/arm64/boot/Image
 # Compiled dtb by dtbtool
 CR_DTB=$CR_DIR/boot.img-dtb
 # Kernel Name and Version
-CR_VERSION=V3.0
+CR_VERSION=V3.5
 CR_NAME=HeliosPie_Kernel
 # Thread count
-CR_JOBS=5
+CR_JOBS=$((`nproc`-1))
 # Target android version and platform (7/n/8/o/9/p)
 CR_ANDROID=o
 CR_PLATFORM=8.0.0
@@ -85,14 +85,14 @@ BUILD_ZIMAGE()
 	export LOCALVERSION=-$CR_NAME-$CR_VERSION-$CR_VARIANT-$CR_DATE
 	make  $CR_CONFG
 	make -j$CR_JOBS
-	if [ ! -e $CR_KERNEL ]; then
+	if [ ! -e ./arch/arm64/boot/Image ]; then
 	exit 0;
 	echo "Image Failed to Compile"
 	echo " Abort "
 	fi
 	du -k "$CR_KERNEL" | cut -f1 >sizT
 	sizT=$(head -n 1 sizT)
-	rm -rf sizT      
+	rm -rf sizT 
 	echo " "
 	echo "----------------------------------------------"
 }
