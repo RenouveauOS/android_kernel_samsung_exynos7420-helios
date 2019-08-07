@@ -1,4 +1,6 @@
 /*
+ * BT-AMP (BlueTooth Alternate Mac and Phy) 802.11 PAL (Protocol Adaptation Layer)
+ *
  * Copyright (C) 1999-2017, Broadcom Corporation
  * 
  *      Unless you and Broadcom execute a separate written software license
@@ -19,30 +21,28 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: epivers.h.in,v 13.33 2010-09-08 22:08:53 $
  *
+ * <<Broadcom-WL-IPTag/Open:>>
+ *
+ * $Id: 802.11_bta.h 518342 2014-12-01 23:21:41Z $
 */
 
-#ifndef _epivers_h_
-#define _epivers_h_
+#ifndef _802_11_BTA_H_
+#define _802_11_BTA_H_
 
-#define	EPI_MAJOR_VERSION	1
+#define BT_SIG_SNAP_MPROT		"\xAA\xAA\x03\x00\x19\x58"
 
-#define	EPI_MINOR_VERSION	47
+/* BT-AMP 802.11 PAL Protocols */
+#define BTA_PROT_L2CAP				1
+#define	BTA_PROT_ACTIVITY_REPORT		2
+#define BTA_PROT_SECURITY			3
+#define BTA_PROT_LINK_SUPERVISION_REQUEST	4
+#define BTA_PROT_LINK_SUPERVISION_REPLY		5
 
-#define	EPI_RC_NUMBER		61
-
-#define	EPI_INCREMENTAL_NUMBER	0
-
-#define	EPI_BUILD_NUMBER	0
-
-#define	EPI_VERSION		1, 47, 61, 0
-
-#define	EPI_VERSION_NUM		0x012f3d00
-
-#define EPI_VERSION_DEV		1.47.61
-
-/* Driver Version String, ASCII, 32 chars max */
-#define	EPI_VERSION_STR		"1.47.61 (r)"
-
-#endif /* _epivers_h_ */
+/* BT-AMP 802.11 PAL AMP_ASSOC Type IDs */
+#define BTA_TYPE_ID_MAC_ADDRESS			1
+#define BTA_TYPE_ID_PREFERRED_CHANNELS		2
+#define BTA_TYPE_ID_CONNECTED_CHANNELS		3
+#define BTA_TYPE_ID_CAPABILITIES		4
+#define BTA_TYPE_ID_VERSION			5
+#endif /* _802_11_bta_h_ */
