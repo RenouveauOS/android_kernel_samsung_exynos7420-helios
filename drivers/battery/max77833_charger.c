@@ -882,6 +882,12 @@ static void max77833_set_current(struct max77833_charger_data *charger)
 	pr_info("%s: siop_level=%d(%d), afc_detec=%d, wc_afc_detec=%d, vbus_ch=%d, current_max=%d, current_now=%d\n",
 		__func__, siop_level, charger->siop_level, charger->afc_detect, charger->wc_afc_detect, charger->vbus_changing, current_max, current_now);
 
+	if (max77833_check_aicl_state(charger)) {
+		wake_lock(&charger->aicl_wake_lock);
+		queue_delayed_work(charger->wqueue, &charger->aicl_work,
+				msecs_to_jiffies(50));
+	}
+
 	max77833_set_charge_current(charger, current_now);
 	max77833_set_input_current(charger, current_max);
 
@@ -2307,7 +2313,6 @@ static void max77833_aicl_work(struct work_struct *work)
 	u8 reg_data;
 	pr_info("%s: [%d] iin:%d\n", __func__, charger->is_charging, iin);
 
-	wake_lock(&charger->aicl_wake_lock);
 	if ((charger->is_charging) &&
 		(charger->cable_type != POWER_SUPPLY_TYPE_WIRELESS &&
 			charger->cable_type != POWER_SUPPLY_TYPE_HV_WIRELESS &&
@@ -2367,6 +2372,8 @@ static irqreturn_t max77833_aicl_irq(int irq, void *data)
 		return IRQ_HANDLED;
 	}
 
+	wake_lock(&charger->aicl_wake_lock);
+
 	max77833_update_reg(charger->i2c, MAX77833_CHG_REG_INT_MASK,
 			MAX77833_AICL_IM, MAX77833_AICL_IM);
 	max77833_read_reg(charger->i2c,
@@ -2378,6 +2385,8 @@ static irqreturn_t max77833_aicl_irq(int irq, void *data)
 
 	return IRQ_HANDLED;
 }
+
+bool unstable_power_detection = true;
 
 static void max77833_chgin_isr_work(struct work_struct *work)
 {
@@ -2416,23 +2425,7 @@ static void max77833_chgin_isr_work(struct work_struct *work)
 			stable_count++;
 		else
 			stable_count = 0;
-		if (stable_count > 10) {
-#if defined(CONFIG_VBUS_NOTIFIER)
-			switch (chgin_dtls) {
-					case 0x03:
-							vbus_notifier_handle(STATUS_VBUS_HIGH);
-							break;
-					case 0x00:
-					case 0x01:
-					case 0x02:
-							vbus_notifier_handle(STATUS_VBUS_LOW);
-							break;
-					default:
-							pr_err("%s: unknown chgin_dtls(0x%x)\n", __func__, chgin_dtls);
-							vbus_notifier_handle(STATUS_VBUS_UNKNOWN);
-							break;
-				}
-#endif
+		if (stable_count > 10 || !unstable_power_detection) {
 			pr_info("%s: irq(%d), chgin(0x%x), chg_dtls(0x%x) prev 0x%x\n",
 					__func__, charger->irq_chgin,
 					chgin_dtls, chg_dtls, prev_chgin_dtls);

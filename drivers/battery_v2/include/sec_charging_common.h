@@ -43,17 +43,6 @@ enum power_supply_ext_property {
 	POWER_SUPPLY_EXT_PROP_WIRELESS_TX_VAL,
 	POWER_SUPPLY_EXT_PROP_AICL_CURRENT,
 	POWER_SUPPLY_EXT_PROP_CHECK_MULTI_CHARGE,
-	POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING,
-	POWER_SUPPLY_EXT_PROP_SYSOVLO,
-	POWER_SUPPLY_EXT_PROP_VBAT_OVP,
-	POWER_SUPPLY_EXT_PROP_FUELGAUGE_RESET,
-	POWER_SUPPLY_EXT_PROP_FACTORY_VOLTAGE_REGULATION,
-	POWER_SUPPLY_EXT_PROP_ANDIG_IVR_SWITCH,
-};
-
-enum power_supply_ext_health {
-	POWER_SUPPLY_HEALTH_VSYS_OVP = POWER_SUPPLY_HEALTH_MAX,
-	POWER_SUPPLY_HEALTH_VBAT_OVP,
 };
 
 enum sec_battery_voltage_mode {
@@ -83,8 +72,6 @@ enum sec_battery_capacity_mode {
 	SEC_BATTERY_CAPACITY_AGEDCELL,
 	/* charge count */
 	SEC_BATTERY_CAPACITY_CYCLE,
-	/* full capacity rep */
-	SEC_BATTERY_CAPACITY_FULL,
 };
 
 enum sec_wireless_info_mode {
@@ -179,9 +166,10 @@ enum sec_battery_adc_channel {
 	SEC_BAT_ADC_CHANNEL_VOLTAGE_NOW,
 	SEC_BAT_ADC_CHANNEL_CHG_TEMP,
 	SEC_BAT_ADC_CHANNEL_INBAT_VOLTAGE,
+	SEC_BAT_ADC_CHANNEL_DISCHARGING_CHECK,
+	SEC_BAT_ADC_CHANNEL_DISCHARGING_NTC,
 	SEC_BAT_ADC_CHANNEL_WPC_TEMP,
 	SEC_BAT_ADC_CHANNEL_SLAVE_CHG_TEMP,
-	SEC_BAT_ADC_CHANNEL_USB_TEMP,
 	SEC_BAT_ADC_CHANNEL_NUM,
 };
 
@@ -250,10 +238,12 @@ enum sec_battery_full_charged {
 	SEC_BATTERY_FULLCHARGED_CHGPSY,
 };
 
-/* BATT_INBAT_VOLTAGE */
-enum sec_battery_inbat_fgsrc_switching {
-	SEC_BAT_INBAT_FGSRC_SWITCHING_ON = 0,
-	SEC_BAT_INBAT_FGSRC_SWITCHING_OFF,
+/* Self discharger type */
+enum sec_battery_discharger_type {
+	/* type ADC */
+	SEC_BAT_SELF_DISCHARGING_BY_ADC = 0,
+	/* type Fuel Gauge */
+	SEC_BAT_SELF_DISCHARGING_BY_FG,
 };
 
 #define sec_battery_full_charged_t \
@@ -348,27 +338,6 @@ enum sec_battery_thermal_source {
 };
 #define sec_battery_thermal_source_t \
 	enum sec_battery_thermal_source
-
-/* charger thermal source */
-enum sec_charger_thermal_source {
-	/* by external source */
-	SEC_CHARGER_THERMAL_SOURCE_CALLBACK,
-	/* by ADC */
-	SEC_CHARGER_THERMAL_SOURCE_ADC,
-	/* by fuel gauge */
-	SEC_CHARGER_THERMAL_SOURCE_FG,
-};
-#define sec_charger_thermal_source_t \
-	enum sec_charger_thermal_source
-
-enum sec_battery_heating_prevention_method {
-	/* voltage based change */
-	SEC_BATTERY_BY_CHANGING_VOLTAGE = 0,
-	/* current based change */
-	SEC_BATTERY_BY_CHANGING_CURRENT,
-};
-#define sec_battery_heating_prevention_method_t \
-	enum sec_battery_heating_prevention_method
 
 /* temperature check type */
 enum sec_battery_temp_check {
@@ -579,7 +548,7 @@ struct sec_battery_platform_data {
 	int bat_polarity_ta_nconnected;
 	int bat_irq;
 	int bat_irq_gpio; /* BATT_INT(BAT_ID detecting) */
-	unsigned int bat_irq_attr;
+	unsigned long bat_irq_attr;
 	int jig_irq;
 	unsigned long jig_irq_attr;
 	sec_battery_cable_check_t cable_check_type;
@@ -595,14 +564,9 @@ struct sec_battery_platform_data {
 	/* battery swelling */
 	int swelling_high_temp_block;
 	int swelling_high_temp_recov;
-	int swelling_low_temp_block_1st;
-	int swelling_low_temp_recov_1st;
-	int swelling_low_temp_block_2nd;
-	int swelling_low_temp_recov_2nd;
-	int swelling_low_temp_2step_mode;
-	int swelling_low_temp_additional;
+	int swelling_low_temp_block;
+	int swelling_low_temp_recov;
 	unsigned int swelling_low_temp_current;
-	unsigned int swelling_low_temp_additional_current;
 	unsigned int swelling_low_temp_topoff;
 	unsigned int swelling_high_temp_current;
 	unsigned int swelling_high_temp_topoff;
@@ -622,6 +586,24 @@ struct sec_battery_platform_data {
 	/* step charging */
 	unsigned int *step_charging_condition;
 	unsigned int *step_charging_current;
+#endif
+
+	/* self discharging */
+	bool self_discharging_en;
+	unsigned int discharging_adc_max;
+	unsigned int discharging_adc_min;
+	unsigned int self_discharging_voltage_limit;
+	unsigned int discharging_ntc_limit;
+	int force_discharging_limit;
+	int force_discharging_recov;
+	int factory_discharging;
+	unsigned int self_discharging_type;
+#if defined(CONFIG_SW_SELF_DISCHARGING)
+	/* sw self discharging */
+	int self_discharging_temp_block;
+	int self_discharging_volt_block;
+	int self_discharging_temp_recov;
+	int self_discharging_temp_pollingtime;
 #endif
 
 	/* Monitor setting */
@@ -655,7 +637,6 @@ struct sec_battery_platform_data {
 	sec_bat_adc_table_data_t *temp_amb_adc_table;
 	sec_bat_adc_table_data_t *chg_temp_adc_table;
 	sec_bat_adc_table_data_t *wpc_temp_adc_table;
-	sec_bat_adc_table_data_t *usb_temp_adc_table;
 	sec_bat_adc_table_data_t *slave_chg_temp_adc_table;
 	sec_bat_adc_table_data_t *inbat_adc_table;
 #else
@@ -666,26 +647,18 @@ struct sec_battery_platform_data {
 	unsigned int temp_amb_adc_table_size;
 	unsigned int chg_temp_adc_table_size;
 	unsigned int wpc_temp_adc_table_size;
-	unsigned int usb_temp_adc_table_size;
 	unsigned int slave_chg_temp_adc_table_size;
 	unsigned int inbat_adc_table_size;
 
 	sec_battery_temp_check_t temp_check_type;
 	unsigned int temp_check_count;
 	unsigned int chg_temp_check; /* Control the charging current depending on the chg_thm */
-	sec_charger_thermal_source_t chg_thermal_source; /* To confirm the charger temperature source */
-	sec_battery_heating_prevention_method_t chg_heating_prevention_method; /* To select heating prevention method */
+	unsigned int chg_thermal_source; /* To confirm the charger temperature */
 	unsigned int wpc_temp_check;
 	unsigned int wpc_thermal_source; /* To confirm the wpc temperature */
 	unsigned int slave_chg_temp_check;
 	unsigned int slave_thermal_source; /* To confirm the slave charger temperature */
 	unsigned int inbat_voltage;
-	unsigned int usb_thermal_source; /* To confirm the usb temperature */		
-	
-#if defined(CONFIG_XADC_SHARE_BATT_WITH_USB_THM)
-	/* To use xadc mux for BAT_THM with USB_THM */
-	int xadc_mux_sel_pin;
-#endif
 
 	/*
 	 * limit can be ADC value or Temperature
@@ -789,16 +762,15 @@ struct sec_battery_platform_data {
 	int wpc_det;
 	int wpc_en;
 
-	int thm_mux;
-
 	int chg_gpio_en;
 	int chg_irq;
 	unsigned long chg_irq_attr;
-
 	/* float voltage (mV) */
+#ifdef CONFIG_OF
 	unsigned int chg_float_voltage;
-	unsigned int chg_float_voltage_conv;
-
+#else
+	int chg_float_voltage;
+#endif
 #if defined(CONFIG_BATTERY_AGE_FORECAST)
 	int num_age_step;
 	int age_step;
@@ -823,28 +795,13 @@ struct sec_battery_platform_data {
 	int max_input_voltage;
 	int max_input_current;
 	int pre_afc_work_delay;
-	
-	/* if siop level 0, set minimum fast charging current */
-	int minimum_charging_current_by_siop_0;
 
 	sec_charger_functions_t chg_functions_setting;
 
 	bool fake_capacity;
 
-#if defined(CONFIG_BATTERY_CISD)
-	unsigned int battery_full_capacity;
-	unsigned int cisd_cap_high_thr;
-	unsigned int cisd_cap_low_thr;
-	unsigned int cisd_cap_limit;
-	unsigned int max_voltage_thr;
-#endif
-
 	/* ADC setting */
 	unsigned int adc_check_count;
-	unsigned int expired_time;
-	unsigned int recharging_expired_time;
-	int standard_curr;
-
 	/* ADC type for each channel */
 	unsigned int adc_type[];
 };
@@ -867,8 +824,8 @@ struct sec_charger_platform_data {
 	int chg_irq;
 	unsigned long chg_irq_attr;
 
-        int ovp_enb;
-        int wpc_det;
+	int ovp_enb;
+	int wpc_det;
 
 	/* otg_en setting */
 	int otg_en;

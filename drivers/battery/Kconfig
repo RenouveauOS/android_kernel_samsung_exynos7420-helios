@@ -7,6 +7,14 @@ config BATTERY_SAMSUNG
 	 To see battery-related functions,
 	 refer to sec_charging_common.h
 
+config BATTERY_CONTROL
+	bool "Samsung battery control"
+	help
+	default n
+	 Say Y to include support for samsung battery Control
+	 This battery driver allows controlling charging rates.
+
+
 config CHARGING_VZWCONCEPT
 	tristate "VZW concept about the charging"
 	default n
@@ -60,7 +68,6 @@ config BATTERY_AGE_FORECAST
 	depends on BATTERY_SWELLING
 	help
 	Say Y to use calc time to full function.
-
 config BATTERY_CISD
 	bool "support for cisd"
 	help

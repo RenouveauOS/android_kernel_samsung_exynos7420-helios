@@ -10,36 +10,13 @@
  * published by the Free Software Foundation.
  */
 #include <linux/battery/sec_battery.h>
-
 #include <linux/sec_debug.h>
 #include <linux/variant_detection.h>
-
-#ifdef CONFIG_CCIC_NOTIFIER
-#include <linux/ccic/ccic_notifier.h>
-#endif /* CONFIG_CCIC_NOTIFIER */
 
 #include <linux/moduleparam.h>
 
 static int wl_polling = 10;
 module_param(wl_polling, int, 0644);
-
-enum {
-	P9220_VOUT_0V = 0,
-	P9220_VOUT_5V,
-	P9220_VOUT_6V,
-	P9220_VOUT_9V,
-	P9220_VOUT_CC_CV,
-	P9220_VOUT_CV_CALL,
-	P9220_VOUT_CC_CALL,
-	P9220_VOUT_9V_STEP,
-};
-
-#define P9220_VOUT_5V_VAL					0x0f
-#define P9220_VOUT_6V_VAL					0x19
-#define P9220_VOUT_7V_VAL					0x23
-#define P9220_VOUT_8V_VAL					0x2d
-/* We set VOUT to 10V actually for HERO for RE/CE standard authentication */
-#define P9220_VOUT_9V_VAL					0x37
 
 const char *charger_chip_name;
 
@@ -309,7 +286,7 @@ static int sec_bat_set_charge(
 			battery->charging_next_time =
 				battery->pdata->charging_reset_time;
 		}
-		if (battery->siop_level < 100 && !battery->lcd_on_time)
+		if (battery->siop_level < 100)
 			battery->lcd_on_time = ts.tv_sec;
 	} else {
 		val.intval = POWER_SUPPLY_TYPE_BATTERY;
@@ -2972,23 +2949,8 @@ static void sec_bat_swelling_fullcharged_check(struct sec_battery_info *battery)
 {
 	union power_supply_propval value;
 
-	switch (battery->pdata->full_check_type_2nd) {
-	case SEC_BATTERY_FULLCHARGED_FG_CURRENT:
-		if ((battery->current_now > 0 && battery->current_now <
-			battery->pdata->charging_current[
-			battery->cable_type].full_check_current_1st) &&
-			(battery->current_avg > 0 && battery->current_avg <
-			battery->pdata->charging_current[
-			battery->cable_type].full_check_current_2nd) &&
-			((battery->pdata->swelling_drop_float_voltage - 100) < battery->voltage_now)) {
-			value.intval = POWER_SUPPLY_STATUS_FULL;
-		}
-		break;
-	default:
-		psy_do_property(battery->pdata->charger_name, get,
-			POWER_SUPPLY_PROP_STATUS, value);
-		break;
-	}
+	psy_do_property(battery->pdata->charger_name, get,
+		POWER_SUPPLY_PROP_STATUS, value);
 
 	if (value.intval == POWER_SUPPLY_STATUS_FULL) {
 		battery->swelling_full_check_cnt++;
@@ -3675,7 +3637,6 @@ static void sec_bat_cable_work(struct work_struct *work)
 		val.intval = 0;
 		psy_do_property(battery->pdata->charger_name, set,
 			POWER_SUPPLY_PROP_CURRENT_NOW, val);
-		sec_bat_set_charge(battery, false);
 
 		dev_info(battery->dev,
 			"%s:slate mode on\n",__func__);
@@ -5059,7 +5020,7 @@ ssize_t sec_bat_store_attrs(
 			union power_supply_propval value;
 			dev_err(battery->dev,
 					"%s: BATT_CAPACITY_MAX(%d), fg_reset(%d)\n", __func__, x, fg_reset);
-			if (!fg_reset && !battery->store_mode) {
+			if (x  > 800 && x < 1200 && !fg_reset) {
 				value.intval = x;
 				psy_do_property(battery->pdata->fuelgauge_name, set,
 						POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN, value);
@@ -8118,6 +8079,10 @@ static int __devinit sec_battery_probe(struct platform_device *pdev)
 	dev_info(battery->dev,
 		"%s: SEC Battery Driver Loaded\n", __func__);
 
+#ifdef CONFIG_BATTERY_CONTROL
+	charger_control_init(battery);
+#endif
+	
 	return 0;
 
 err_req_irq:
