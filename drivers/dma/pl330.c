@@ -28,7 +28,6 @@
 #include <linux/of.h>
 #include <linux/of_dma.h>
 #include <linux/err.h>
-#include <linux/cpu.h>
 
 #include <plat/cpu.h>
 
@@ -36,8 +35,6 @@
 
 #include <linux/exynos_ion.h>
 #include <linux/smc.h>
-
-#include <mach/cpufreq.h>
 
 #define MC_FC_SECURE_DMA	((uint32_t)(0x81000010))
 
@@ -358,10 +355,6 @@ struct pl330_info {
 	void	*pl330_data;
 	/* Populated by the PL330 core driver during pl330_add */
 	struct pl330_config	pcfg;
-#ifdef CONFIG_EXYNOS5_DYNAMIC_CPU_HOTPLUG
-	/* dynamic hotplug notifier */
-	struct notifier_block	nb;
-#endif
 	/*
 	 * If the DMAC has some reset mechanism, then the
 	 * client may want to provide pointer to the method.
@@ -640,9 +633,6 @@ struct dma_pl330_dmac {
 
 	/* Peripheral channels connected to this DMAC */
 	struct dma_pl330_chan *peripherals; /* keep at end */
-
-	bool multi_irq;
-	int irqnum_having_multi;
 };
 
 struct dma_pl330_desc {
@@ -681,10 +671,6 @@ static inline u32 get_unaligned_le32(u8 *p)
 {
 	return p[0] | p[1] << 8 | p[2] << 16 | p[3] << 24;
 }
-
-#if defined(CONFIG_SCHED_HMP)
-extern struct cpumask hmp_slow_cpu_mask;
-#endif
 
 static inline void _callback(struct pl330_req *r, enum pl330_op_err err)
 {
@@ -3300,64 +3286,8 @@ int pl330_dma_debug(struct dma_chan *chan)
 }
 EXPORT_SYMBOL(pl330_dma_debug);
 
-#ifdef CONFIG_EXYNOS5_DYNAMIC_CPU_HOTPLUG
-static int pl330_dm_hotplug_notifier_call(struct notifier_block *nb,
-				unsigned long action, void *hcpu)
-{
-	struct pl330_info *pi = container_of(nb, struct pl330_info, nb);
-	struct dma_pl330_dmac *pdmac =
-			(struct dma_pl330_dmac *)dev_get_drvdata(pi->dev);
-	struct cpumask irq_affinity_mask;
-	unsigned int cpu = (unsigned long)hcpu;
-	int irq;
-
-#if defined(CONFIG_SCHED_HMP)
-	if (cpu >= NR_CLUST0_CPUS)
-		return NOTIFY_DONE;
-#endif
-
-	if (pdmac->multi_irq)
-		irq = pdmac->irqnum_having_multi;
-	else
-		return NOTIFY_DONE;
-
-	switch (action) {
-	case CPU_DOWN_PREPARE:
-	case CPU_DOWN_PREPARE_FROZEN:
-#if defined(CONFIG_SCHED_HMP)
-		cpumask_and(&irq_affinity_mask, cpu_online_mask, &hmp_slow_cpu_mask);
-		cpumask_clear_cpu(cpu, &irq_affinity_mask);
-#else
-		cpumask_copy(&irq_affinity_mask, cpu_online_mask);
-		cpumask_clear_cpu(cpu, &irq_affinity_mask);
-#endif
-
-		if (irq)
-			irq_set_affinity(irq, &irq_affinity_mask);
-		break;
-
-	case CPU_DOWN_FAILED:
-	case CPU_DOWN_FAILED_FROZEN:
-	case CPU_ONLINE:
-	case CPU_ONLINE_FROZEN:
-#if defined(CONFIG_SCHED_HMP)
-		cpumask_and(&irq_affinity_mask, cpu_online_mask, &hmp_slow_cpu_mask);
-#else
-		cpumask_copy(&irq_affinity_mask, cpu_online_mask);
-#endif
-		if (irq)
-			irq_set_affinity(irq, &irq_affinity_mask);
-		break;
-	}
-
-	return NOTIFY_DONE;
-}
-#endif
-
 static int pl330_fixup_ctrl(struct device *dev)
 {
-	struct dma_pl330_dmac *pdmac;
-
 	if (soc_is_exynos7420()) {
 		void __iomem *base;
 
@@ -3366,19 +3296,6 @@ static int pl330_fixup_ctrl(struct device *dev)
 
 		iounmap(base);
 	}
-
-	pdmac = (struct dma_pl330_dmac *)dev_get_drvdata(dev);
-
-	if (pdmac->multi_irq) {
-		int irq = pdmac->irqnum_having_multi;
-		if (irq)
-#if defined(CONFIG_SCHED_HMP)
-			irq_set_affinity(irq, &hmp_slow_cpu_mask);
-#else
-			irq_set_affinity(irq, cpu_all_mask);
-#endif
-	}
-
 	return 0;
 }
 #ifdef CONFIG_PM
@@ -3405,7 +3322,6 @@ pl330_probe(struct amba_device *adev, const struct amba_id *id)
 	struct resource *res;
 	int i, ret, irq;
 	int num_chan;
-	int irq_flags = 0;
 
 	pdat = adev->dev.platform_data;
 
@@ -3428,33 +3344,11 @@ pl330_probe(struct amba_device *adev, const struct amba_id *id)
 
 	amba_set_drvdata(adev, pdmac);
 
-	if (adev->dev.of_node) {
-		pdmac->multi_irq = of_dma_multi_irq(adev->dev.of_node);
-		if (pdmac->multi_irq)
-			irq_flags = IRQF_GIC_MULTI_TARGET;
-	}
-
 	irq = adev->irq[0];
-	ret = request_irq(irq, pl330_irq_handler, irq_flags,
+	ret = request_irq(irq, pl330_irq_handler, 0,
 			dev_name(&adev->dev), pi);
 	if (ret)
 		return ret;
-
-	if (pdmac->multi_irq) {
-#if defined(CONFIG_SCHED_HMP)
-		irq_set_affinity(irq, &hmp_slow_cpu_mask);
-#else
-		irq_set_affinity(irq, cpu_all_mask);
-#endif
-		pdmac->irqnum_having_multi = irq;
-	}
-
-#ifdef CONFIG_EXYNOS5_DYNAMIC_CPU_HOTPLUG
-	pi->nb.notifier_call = pl330_dm_hotplug_notifier_call;
-	ret = register_hotcpu_notifier(&pi->nb);
-	if (ret)
-		goto probe_err;
-#endif
 
 	ret = pl330_add(pi);
 	if (ret)
@@ -3567,10 +3461,6 @@ probe_err3:
 probe_err2:
 	pl330_del(pi);
 probe_err1:
-#ifdef CONFIG_EXYNOS5_DYNAMIC_CPU_HOTPLUG
-	unregister_hotcpu_notifier(&pi->nb);
-probe_err:
-#endif
 	free_irq(irq, pi);
 
 	return ret;
@@ -3607,10 +3497,6 @@ static int pl330_remove(struct amba_device *adev)
 	pi = &pdmac->pif;
 
 	pl330_del(pi);
-
-#ifdef CONFIG_EXYNOS5_DYNAMIC_CPU_HOTPLUG
-	unregister_hotcpu_notifier(&pi->nb);
-#endif
 
 	irq = adev->irq[0];
 	free_irq(irq, pi);
