@@ -3,6 +3,7 @@
 # IMPORTANT: Do not create world writable files or directories.
 # This is a common source of Android security bugs.
 #
+
 import /init.environ.rc
 import /init.usb.rc
 import /init.${ro.hardware}.rc
@@ -535,17 +536,6 @@ on post-fs-data
     # Start Stork Daemon
     start storkd
 
-    # VaultKeeper socket
-    # mkdir /dev/socket/vaultkeeper 0770 system system
-    # chown system system /dev/socket/vaultkeeper
-    # chmod 0770 /dev/socket/vaultkeeper
-
-    #start VaultKeeper
-    # start vaultkeeper
-
-    #start VaultKeeper_HAL
-    # start vaultkeeper_hal
-
     #start CASS
     start cass
 
@@ -1035,61 +1025,6 @@ on boot
     chmod 0664 /sys/power/cpufreq_min_limit
     chown system radio /sys/power/cpufreq_max_limit
     chmod 0664 /sys/power/cpufreq_max_limit
-
-    #  Sensors permissions
-    # Accelerometer_sensor
-    chown system radio /sys/class/sensors/accelerometer_sensor/raw_data
-    chown system radio /sys/class/sensors/accelerometer_sensor/calibration
-    chown system radio /sys/class/sensors/accelerometer_sensor/reactive_alert
-    chown system radio /sys/class/sensors/accelerometer_sensor/selftest
-    chown system radio /sys/class/sensors/accelerometer_sensor/vendor
-    chown system radio /sys/class/sensors/accelerometer_sensor/name
-    chown system system /efs/calibration_data
-    chmod 0666 /efs/calibration_data
-    # Proximity_sensor
-    chown system radio /sys/class/sensors/proximity_sensor/state
-    chown system radio /sys/class/sensors/proximity_sensor/raw_data
-    chown system radio /sys/class/sensors/proximity_sensor/prox_avg
-    chown system radio /sys/class/sensors/proximity_sensor/prox_cal
-    chown system radio /sys/class/sensors/proximity_sensor/prox_thresh
-    chown system radio /sys/class/sensors/proximity_sensor/thresh_high
-    chown system radio /sys/class/sensors/proximity_sensor/thresh_low
-    chown system radio /sys/class/sensors/proximity_sensor/thresh_detect_high
-    chown system radio /sys/class/sensors/proximity_sensor/thresh_detect_low
-    chown system radio /sys/class/sensors/proximity_sensor/vendor
-    chown system radio /sys/class/sensors/proximity_sensor/name
-    # Light_sensor
-    chown system radio /sys/class/sensors/light_sensor/lux
-    chown system radio /sys/class/sensors/light_sensor/raw_data
-    chown system radio /sys/class/sensors/light_sensor/vendor
-    chown system radio /sys/class/sensors/light_sensor/name
-    # Gyro_sensor
-    chown system radio /sys/class/sensors/gyro_sensor/power_on
-    chown system radio /sys/class/sensors/gyro_sensor/power_off
-    chown system radio /sys/class/sensors/gyro_sensor/temperature
-    chown system radio /sys/class/sensors/gyro_sensor/selftest
-    chown system radio /sys/class/sensors/gyro_sensor/selftest_dps
-    chown system radio /sys/class/sensors/gyro_sensor/vendor
-    chown system radio /sys/class/sensors/gyro_sensor/name
-    # Magnetic_sensor
-    chown system radio /sys/class/sensors/magnetic_sensor/selftest
-    chown system radio /sys/class/sensors/magnetic_sensor/raw_data
-    chown system radio /sys/class/sensors/magnetic_sensor/adc
-    chown system radio /sys/class/sensors/magnetic_sensor/vendor
-    chown system radio /sys/class/sensors/magnetic_sensor/name
-    chown system radio /sys/class/sensors/magnetic_sensor/status
-    # MPL IIO
-    chown system system /dev/invensense
-    chown system system /sys/bus/iio/devices/invensense/buffer/enable
-    chown system system /sys/bus/iio/devices/invensense/buffer/length
-    chown system system /sys/bus/iio/devices/invensense/control
-    chmod 0660 /dev/invensense
-    chmod 0664 /sys/bus/iio/devices/invensense/buffer/enable
-    chmod 0664 /sys/bus/iio/devices/invensense/buffer/length
-    chmod 0664 /sys/bus/iio/devices/invensense/control
-
-    #Meta event
-    chown system radio /sys/class/sensors/sensor_dev/flush    
 
 	# permission for CHARGING
 	mkdir /efs/Battery 0775 radio system

@@ -53,6 +53,17 @@ on property:ril.clatd.v4-rmnet6=up
 on property:ril.clatd.v4-rmnet7=up
     write /sys/class/net/rmnet7/queues/rx-0/rps_cpus 4
     write /sys/class/net/v4-rmnet7/queues/rx-0/rps_cpus 2
+
+# SS/DS configuration
+on property:ro.multisim.simslotcount=*
+   write /sys/module/modem_ctrl_ss310ap/parameters/ds_detect ${ro.multisim.simslotcount}
+
+on property:ro.multisim.simslotcount=1
+    setprop persist.radio.multisim.config ss
+
+on property:ro.multisim.simslotcount=2
+    setprop persist.radio.multisim.config dsds
+
 # CP Boot Daemon (CBD)
 service cpboot-daemon /sbin/cbd -d -t ss333 -b s -m l -P platform/15570000.ufs/by-name/RADIO
     class main
