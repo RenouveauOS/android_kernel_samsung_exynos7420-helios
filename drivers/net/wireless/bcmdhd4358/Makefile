@@ -144,9 +144,6 @@ DHDCFLAGS += -DCUSTOM_KEEP_ALIVE_SETTING=30000
 # For special PNO Event keep wake lock for 10sec
 DHDCFLAGS += -DCUSTOM_PNO_EVENT_LOCK_xTIME=10
 
-# For Passing all multicast packets to host when not in suspend mode.
-# DHDCFLAGS += -DPASS_ALL_MCAST_PKTS
-
 # Early suspend
 DHDCFLAGS += -DDHD_USE_EARLYSUSPEND
 
@@ -216,11 +213,8 @@ DHDCFLAGS += -DSUPPORT_RANDOM_MAC_SCAN
 
 # Enable Checking Blob existence
 DHDCFLAGS += -DDHD_BLOB_EXISTENCE_CHECK
-DHDCFLAGS += -DDHD_SET_COUNTRY_SUPPORT
 
-##############################
-# Android Platform Definition
-##############################
+DHDCFLAGS += -DDHD_SET_COUNTRY_SUPPORT
 
 ###########
 # Lollipop
@@ -631,7 +625,6 @@ endif
 ifneq ($(CONFIG_MACH_UNIVERSAL5433),)
 DHDCFLAGS += -DDHD_OF_SUPPORT
 DHDCFLAGS += -DBCMPCIE_OOB_HOST_WAKE
-DHDCFLAGS += -DDHD_API_SUPPORT
 endif
 ifneq ($(CONFIG_MACH_UNIVERSAL5430),)
 DHDCFLAGS += -DDHD_OF_SUPPORT

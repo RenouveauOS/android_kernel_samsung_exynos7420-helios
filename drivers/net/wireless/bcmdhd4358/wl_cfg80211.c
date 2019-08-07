@@ -5534,7 +5534,6 @@ wl_cfg80211_set_power_mgmt(struct wiphy *wiphy, struct net_device *dev,
 	/* Enlarge pm_enable_work */
 	wl_add_remove_pm_enable_work(cfg, WL_PM_WORKQ_LONG);
 
-	pm = enabled ? PM_FAST : PM_OFF;
 	if (_net_info->pm_block) {
 		WL_ERR(("%s:Do not enable the power save for pm_block %d\n",
 			dev->name, _net_info->pm_block));
@@ -10199,27 +10198,6 @@ static s32 wl_get_assoc_ies(struct bcm_cfg80211 *cfg, struct net_device *ndev)
 	assoc_info.req_len = htod32(assoc_info.req_len);
 	assoc_info.resp_len = htod32(assoc_info.resp_len);
 	assoc_info.flags = htod32(assoc_info.flags);
-
-	if (assoc_info.req_len > (MAX_REQ_LINE + sizeof(struct dot11_assoc_req) +
-		((assoc_info.flags & WLC_ASSOC_REQ_IS_REASSOC) ? ETHER_ADDR_LEN : 0))) {
-		err = BCME_BADLEN;
-		goto exit;
-	}
-	if ((assoc_info.req_len > 0) &&
-		(assoc_info.req_len < (sizeof(struct dot11_assoc_req) +
-			((assoc_info.flags & WLC_ASSOC_REQ_IS_REASSOC) ? ETHER_ADDR_LEN : 0)))) {
-		err = BCME_BADLEN;
-		goto exit;
-	}
-	if (assoc_info.resp_len > (MAX_REQ_LINE + sizeof(struct dot11_assoc_resp))) {
-		err = BCME_BADLEN;
-		goto exit;
-	}
-	if ((assoc_info.resp_len > 0) && (assoc_info.resp_len < sizeof(struct dot11_assoc_resp))) {
-		err = BCME_BADLEN;
-		goto exit;
-	}
-
 	if (conn_info->req_ie_len) {
 		conn_info->req_ie_len = 0;
 		bzero(conn_info->req_ie, sizeof(conn_info->req_ie));
@@ -10230,26 +10208,41 @@ static s32 wl_get_assoc_ies(struct bcm_cfg80211 *cfg, struct net_device *ndev)
 	}
 	if (assoc_info.req_len) {
 		err = wldev_iovar_getbuf(ndev, "assoc_req_ies", NULL, 0, cfg->extra_buf,
-			assoc_info.req_len, NULL);
+			WL_ASSOC_INFO_MAX, NULL);
 		if (unlikely(err)) {
 			WL_ERR(("could not get assoc req (%d)\n", err));
-			goto exit;
+			return err;
 		}
 		conn_info->req_ie_len = assoc_info.req_len - sizeof(struct dot11_assoc_req);
 		if (assoc_info.flags & WLC_ASSOC_REQ_IS_REASSOC) {
 			conn_info->req_ie_len -= ETHER_ADDR_LEN;
 		}
-		memcpy(conn_info->req_ie, cfg->extra_buf, conn_info->req_ie_len);
+		if (conn_info->req_ie_len <= MAX_REQ_LINE)
+			memcpy(conn_info->req_ie, cfg->extra_buf, conn_info->req_ie_len);
+		else {
+			WL_ERR(("IE size %d above max %d size \n",
+				conn_info->req_ie_len, MAX_REQ_LINE));
+			return err;
+		}
+	} else {
+		conn_info->req_ie_len = 0;
 	}
 	if (assoc_info.resp_len) {
 		err = wldev_iovar_getbuf(ndev, "assoc_resp_ies", NULL, 0, cfg->extra_buf,
-			assoc_info.resp_len, NULL);
+			WL_ASSOC_INFO_MAX, NULL);
 		if (unlikely(err)) {
 			WL_ERR(("could not get assoc resp (%d)\n", err));
-			goto exit;
+			return err;
 		}
-		conn_info->resp_ie_len = assoc_info.resp_len - sizeof(struct dot11_assoc_resp);
-		memcpy(conn_info->resp_ie, cfg->extra_buf, conn_info->resp_ie_len);
+		conn_info->resp_ie_len = assoc_info.resp_len -sizeof(struct dot11_assoc_resp);
+		if (conn_info->resp_ie_len <= MAX_REQ_LINE)
+			memcpy(conn_info->resp_ie, cfg->extra_buf, conn_info->resp_ie_len);
+		else {
+			WL_ERR(("IE size %d above max %d size \n",
+				conn_info->resp_ie_len, MAX_REQ_LINE));
+			return err;
+		}
+
 #ifdef QOS_MAP_SET
 		/* find qos map set ie */
 		if ((qos_map_ie = bcm_parse_tlvs(conn_info->resp_ie, conn_info->resp_ie_len,
@@ -10265,14 +10258,12 @@ static s32 wl_get_assoc_ies(struct bcm_cfg80211 *cfg, struct net_device *ndev)
 			cfg->up_table = NULL;
 		}
 #endif /* QOS_MAP_SET */
+	} else {
+		conn_info->resp_ie_len = 0;
 	}
+	WL_DBG(("req len (%d) resp len (%d)\n", conn_info->req_ie_len,
+		conn_info->resp_ie_len));
 
-exit:
-	if (err) {
-		WL_ERR(("err:%d, assoc_info-req:%u,resp:%u conn_info-req:%u,resp:%u\n",
-			err, assoc_info.req_len, assoc_info.resp_len,
-			conn_info->req_ie_len, conn_info->resp_ie_len));
-	}
 	return err;
 }
 
@@ -15429,17 +15420,6 @@ void wl_cfg80211_del_p2p_wdev(void)
 #endif /* CUSTOMER_HW4 && WL_CFG80211_P2P_DEV_IF */
 
 #if defined(CUSTOMER_HW4)
-#ifdef DHD_API_SUPPORT
-int
-wl_check_wifi_scanning(void)
-{
-	struct bcm_cfg80211 *cfg = g_bcm_cfg;
-	if (cfg && wl_get_drv_status_all(cfg, SCANNING))
-		return 1;
-	return 0;
-}
-EXPORT_SYMBOL(wl_check_wifi_scanning);
-#endif /* DHD_API_SUPPORT */
 int
 wl_cfg80211_is_primary_device(struct net_device *ndev)
 {
