@@ -194,7 +194,7 @@ static int max77843_fg_read_vcell(struct max77843_fuelgauge_data *fuelgauge)
 			__func__, vcell, (data[1]<<8) | data[0]);
 	}
 
-	if ((fuelgauge->sw_v_empty == MAX77843_VEMPTY_MODE) && vcell > fuelgauge->battery_data->sw_v_empty_recover_vol) {
+	if ((fuelgauge->sw_v_empty == MAX77843_VEMPTY_MODE) && vcell > 3550) {
 		fuelgauge->sw_v_empty = MAX77843_VEMPTY_RECOVERY_MODE;
 		max77843_fg_fuelalert_init(fuelgauge,
 					   fuelgauge->pdata->fuel_alert_soc);
@@ -293,7 +293,7 @@ static void max77843_fg_low_temp_compensation(struct max77843_fuelgauge_data *fu
 	if (en) {
 		/* Reset VALRT Threshold setting (disable) */
 		valrt_data[1] = 0xFF;
-		valrt_data[0] = (fuelgauge->battery_data->sw_v_empty_vol - 60) / 20;
+		valrt_data[0] = 0xA2;
 		if (max77843_bulk_write(fuelgauge->i2c, VALRT_THRESHOLD_REG,
 					2, valrt_data) < 0) {
 			pr_info("%s: Failed to write VALRT_THRESHOLD_REG\n", __func__);
@@ -301,12 +301,12 @@ static void max77843_fg_low_temp_compensation(struct max77843_fuelgauge_data *fu
 		}
 
 		data = max77843_read_word(fuelgauge->i2c, (u8)VALRT_THRESHOLD_REG);
-		pr_info("%s: SW V EMPTY Disabled with %d mV (%d)\n",
-			__func__, fuelgauge->battery_data->sw_v_empty_vol, (data&0x00ff)*20);
+		pr_info("%s: VALRT_THRESHOLD_REG is (0x%x)\n",
+			__func__, data);
 	} else {
-		/* Reset VALRT Threshold setting (enable) */
+		/* Reset VALRT Threshold setting (disable) */
 		valrt_data[1] = 0xFF;
-		valrt_data[0] = fuelgauge->battery_data->sw_v_empty_vol / 20;
+		valrt_data[0] = 0xA5;
 		if (max77843_bulk_write(fuelgauge->i2c, VALRT_THRESHOLD_REG,
 					2, valrt_data) < 0) {
 			pr_info("%s: Failed to write VALRT_THRESHOLD_REG\n", __func__);
@@ -314,8 +314,8 @@ static void max77843_fg_low_temp_compensation(struct max77843_fuelgauge_data *fu
 		}
 
 		data = max77843_read_word(fuelgauge->i2c, (u8)VALRT_THRESHOLD_REG);
-		pr_info("%s: SW V EMPTY Enabled with %d mV (%d)\n",
-			__func__, fuelgauge->battery_data->sw_v_empty_vol, (data&0x00ff)*20);
+		pr_info("%s: VALRT_THRESHOLD_REG is (0x%x)\n",
+			__func__, data);
 	}
 }
 
@@ -935,7 +935,7 @@ int max77843_fg_alert_init(struct max77843_fuelgauge_data *fuelgauge, int soc)
 
 	/* Reset VALRT Threshold setting (disable) */
 	valrt_data[1] = 0xFF;
-	valrt_data[0] = fuelgauge->battery_data->sw_v_empty_vol / 20;
+	valrt_data[0] = 0xA5;
 	if (max77843_bulk_write(fuelgauge->i2c, VALRT_THRESHOLD_REG,
 				2, valrt_data) < 0) {
 		pr_info("%s: Failed to write VALRT_THRESHOLD_REG\n", __func__);
@@ -943,8 +943,9 @@ int max77843_fg_alert_init(struct max77843_fuelgauge_data *fuelgauge, int soc)
 	}
 
 	read_data = max77843_read_word(fuelgauge->i2c, (u8)VALRT_THRESHOLD_REG);
-	pr_info("%s: VALRT_THRESHOLD_REG is %d mV (%d)\n",
-		__func__, fuelgauge->battery_data->sw_v_empty_vol, (read_data&0x00ff)*20);
+	if (read_data != 0xFFA5)
+		pr_err("%s: VALRT_THRESHOLD_REG is not valid (0x%x)\n",
+			__func__, read_data);
 
 	/* Reset TALRT Threshold setting (disable) */
 	talrt_data[1] = 0x7F;
@@ -2151,25 +2152,6 @@ static int max77843_fuelgauge_parse_dt(struct max77843_fuelgauge_data *fuelgauge
 			if(ret < 0)
 				pr_err("%s error reading v_empty_origin %d\n",
 				       __func__, ret);
-
-			ret = of_property_read_u32(np, "fuelgauge,sw_v_empty_voltage",
-						   &fuelgauge->battery_data->sw_v_empty_vol);
-			if(ret < 0) {
-				pr_err("%s error reading sw_v_empty_default_vol %d\n",
-					   __func__, ret);
-				fuelgauge->battery_data->sw_v_empty_vol = 3300;
-			}
-
-			ret = of_property_read_u32(np, "fuelgauge,sw_v_empty_recover_voltage",
-						   &fuelgauge->battery_data->sw_v_empty_recover_vol);
-			if(ret < 0) {
-				pr_err("%s error reading sw_v_empty_recover_vol %d\n",
-					   __func__, ret);
-				fuelgauge->battery_data->sw_v_empty_vol = 3550;
-			}
-			
-			pr_info("%s : SW V Empty (%d)mV, SW V Empty recover (%d)mV\n",
-				__func__, fuelgauge->battery_data->sw_v_empty_vol, fuelgauge->battery_data->sw_v_empty_recover_vol);			
 		}
 
 		ret = of_property_read_u32(np, "fuelgauge,qrtable20",

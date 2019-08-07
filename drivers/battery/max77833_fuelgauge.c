@@ -1321,17 +1321,10 @@ static void max77833_fg_get_scaled_capacity(
 {
 	union power_supply_propval value, chg_val, chg_val2;
 	int max_temp;
-#if defined(CONFIG_BATTERY_SWELLING)
-	union power_supply_propval swelling_val;
-#endif
 
 	psy_do_property("battery", get, POWER_SUPPLY_PROP_INPUT_VOLTAGE_REGULATION, value);
 	if (value.intval == POWER_SUPPLY_TYPE_HV_WIRELESS_ETX)
 		value.intval = POWER_SUPPLY_TYPE_HV_WIRELESS;
-#if defined(CONFIG_BATTERY_SWELLING)
-	/* Check whether DUT is in the swelling mode or not */
-	psy_do_property("battery", get, POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT, swelling_val);
-#endif
 	psy_do_property("max77833-charger", get, POWER_SUPPLY_PROP_CURRENT_NOW,
 			chg_val);
 	psy_do_property("max77833-charger", get, POWER_SUPPLY_PROP_CHARGE_NOW,
@@ -1342,9 +1335,6 @@ static void max77833_fg_get_scaled_capacity(
 	max_temp = fuelgauge->capacity_max;
 
 	if ((value.intval != POWER_SUPPLY_TYPE_BATTERY) &&
-#if defined(CONFIG_BATTERY_SWELLING)
-	    (!swelling_val.intval) &&
-#endif
 	    (!strcmp(chg_val2.strval, "CV Mode")) &&
 	    (chg_val.intval >= 1000)) {
 		int temp, sample;
