@@ -1,7 +1,7 @@
 /*
  * DHD Bus Module for SDIO
  *
- * Copyright (C) 1999-2017, Broadcom Corporation
+ * Copyright (C) 1999-2016, Broadcom Corporation
  * 
  *      Unless you and Broadcom execute a separate written software license
  * agreement governing use of this software, this software is licensed to you
@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: dhd_sdio.c 700407 2017-05-19 03:32:21Z $
+ * $Id: dhd_sdio.c 656311 2016-08-26 03:41:56Z $
  */
 
 #include <typedefs.h>
@@ -81,10 +81,6 @@ bool dhd_mp_halting(dhd_pub_t *dhdp);
 extern void bcmsdh_waitfor_iodrain(void *sdh);
 extern void bcmsdh_reject_ioreqs(void *sdh, bool reject);
 extern bool  bcmsdh_fatal_error(void *sdh);
-
-#ifdef DHD_PM_CONTROL_FROM_FILE
-extern bool g_pm_control;
-#endif /* DHD_PM_CONTROL_FROM_FILE */
 
 #ifndef DHDSDIO_MEM_DUMP_FNAME
 #define DHDSDIO_MEM_DUMP_FNAME         "mem_dump"
@@ -2519,18 +2515,8 @@ done:
 	else
 		bus->dhd->tx_ctlpkts++;
 
-	if (bus->dhd->txcnt_timeout >= MAX_CNTL_TX_TIMEOUT) {
-#ifdef DHD_PM_CONTROL_FROM_FILE
-		if (g_pm_control == TRUE) {
-			return -BCME_ERROR;
-		} else {
-			return -ETIMEDOUT;
-		}
-#else
+	if (bus->dhd->txcnt_timeout >= MAX_CNTL_TX_TIMEOUT)
 		return -ETIMEDOUT;
-
-#endif  /* DHD_PM_CONTROL_FROM_FILE */
-	}
 
 	if (ret == BCME_NODEVICE)
 		err_nodevice++;
@@ -2605,17 +2591,8 @@ dhd_bus_rxctl(struct dhd_bus *bus, uchar *msg, uint msglen)
 	else
 		bus->dhd->rx_ctlerrs++;
 
-	if (bus->dhd->rxcnt_timeout >= MAX_CNTL_RX_TIMEOUT) {
-#ifdef DHD_PM_CONTROL_FROM_FILE
-		if (g_pm_control == TRUE) {
-			return -BCME_ERROR;
-		} else {
-			return -ETIMEDOUT;
-		}
-#else
+	if (bus->dhd->rxcnt_timeout >= MAX_CNTL_RX_TIMEOUT)
 		return -ETIMEDOUT;
-#endif  /* DHD_PM_CONTROL_FROM_FILE */
-	}
 
 	if (bus->dhd->dongle_trap_occured)
 		return -EREMOTEIO;
@@ -4507,6 +4484,7 @@ dhd_txglom_enable(dhd_pub_t *dhdp, bool enable)
 	 */
 	dhd_bus_t *bus = dhdp->bus;
 #ifdef BCMSDIOH_TXGLOM
+	char buf[256];
 	uint32 rxglom;
 	int32 ret;
 
@@ -4519,8 +4497,9 @@ dhd_txglom_enable(dhd_pub_t *dhdp, bool enable)
 
 	if (enable) {
 		rxglom = 1;
-		ret = dhd_iovar(dhdp, 0, "bus:rxglom", (char *)&rxglom, sizeof(rxglom), NULL, 0,
-				TRUE);
+		memset(buf, 0, sizeof(buf));
+		bcm_mkiovar("bus:rxglom", (void *)&rxglom, 4, buf, sizeof(buf));
+		ret = dhd_wl_ioctl_cmd(dhdp, WLC_SET_VAR, buf, sizeof(buf), TRUE, 0);
 		if (ret >= 0)
 			bus->txglom_enable = TRUE;
 		else {
