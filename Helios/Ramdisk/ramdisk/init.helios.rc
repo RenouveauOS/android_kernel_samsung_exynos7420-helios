@@ -37,11 +37,11 @@ service main /sbin/helios.sh
     oneshot
     disabled     
 
-service zipalign /sbin/zipalign.sh
-    user root
-    seclabel u:r:init:s0
-    oneshot
-    disabled
+#service zipalign /sbin/zipalign.sh
+#    user root
+#    seclabel u:r:init:s0
+#    oneshot
+#    disabled
 
 service initd /sbin/initd.sh
     user root
@@ -52,5 +52,5 @@ service initd /sbin/initd.sh
 on property:sys.boot_completed=1
     start main
     start perm
-    start zipalign
+#    start zipalign
     start initd

@@ -161,13 +161,13 @@ su -c "pm enable com.google.android.gsf/.update.SystemUpdateService$Receiver"
 su -c "pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeReceiver"
 
 # if its first system-boot , do stuff
-if [ ! -e $nuked ];then
-   log_print "Reset Display to WQHD"
-   wm density 560
-   wm size 1440x2560
+#if [ ! -e $nuked ];then
+#   log_print "Reset Display to WQHD"
+#   wm density 560
+#   wm size 1440x2560
 # set the flag for system being edited already
-   echo "nuked" > /system/nuked  
-fi   
+#   echo "nuked" > /system/nuked  
+#fi   
 
    log_print "Remount"
 

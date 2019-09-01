@@ -19,7 +19,7 @@
 # Main Dir
 CR_DIR=$(pwd)
 # Define toolchan path
-CR_TC=~/Android/Toolchains/linaro-4.9.4-aarch64-linux/bin/aarch64-linux-gnu-
+CR_TC=~/Projects/Android/Renouveau/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 # Define proper arch and dir for dts files
 CR_DTS=arch/arm64/boot/dts
 # Define boot.img out dir
@@ -33,13 +33,13 @@ CR_KERNEL=$CR_DIR/arch/arm64/boot/Image
 # Compiled dtb by dtbtool
 CR_DTB=$CR_DIR/boot.img-dtb
 # Kernel Name and Version
-CR_VERSION=V3.5
-CR_NAME=HeliosPie_Kernel
+CR_VERSION=v3.5.1
+CR_NAME=HeliosPie_Renouveau
 # Thread count
 CR_JOBS=$((`nproc`-1))
 # Target android version and platform (7/n/8/o/9/p)
-CR_ANDROID=o
-CR_PLATFORM=8.0.0
+CR_ANDROID=p
+CR_PLATFORM=9.0.0
 # Target ARCH
 CR_ARCH=arm64
 # Current Date
@@ -134,7 +134,7 @@ PACK_BOOT_IMG()
 	echo "----------------------------------------------"
 	echo " "
 	echo "Building Boot.img for $CR_VARIANT"
-	cp -rf $CR_RAMDISK/* $CR_AIK
+#	cp -rf $CR_RAMDISK/* $CR_AIK
 	# Copy Ramdisk
 	cp -rf $CR_RAMDISK/* $CR_AIK
 	# Move Compiled kernel and dtb to A.I.K Folder
