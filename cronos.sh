@@ -67,24 +67,30 @@ CR_VARIANT_N9208=N9208
 CR_DTSFILES_G928X="exynos7420-zenlte_eur_open_00.dtb exynos7420-zenlte_eur_open_09.dtb"
 CR_CONFG_G928X=zenlte_defconfig
 CR_VARIANT_G928X=G928X
+# Device specific Variables [SM-G92X]
+CR_DTSFILES_G92X="G92X_universal.dtb"
+CR_CONFG_G92X=G92X_defconfig
+CR_CONFG_G92XUS=G92X_US_defconfig
+CR_VARIANT_G92X=G92X
+CR_VARIANT_G92XUS=G92XUS
 #####################################################
 
 # Script functions
 
 read -p "Clean source (y/n) > " yn
 if [ "$yn" = "Y" -o "$yn" = "y" ]; then
-     echo "Clean Build"    
-     make clean && make mrproper    
+     echo "Clean Build"
+     make clean && make mrproper
      rm -r -f $CR_DTB
      rm -rf $CR_DTS/.*.tmp
      rm -rf $CR_DTS/.*.cmd
-     rm -rf $CR_DTS/*.dtb      
+     rm -rf $CR_DTS/*.dtb
 else
      echo "Dirty Build"
      rm -r -f $CR_DTB
      rm -rf $CR_DTS/.*.tmp
      rm -rf $CR_DTS/.*.cmd
-     rm -rf $CR_DTS/*.dtb          
+     rm -rf $CR_DTS/*.dtb
 fi
 
 BUILD_ZIMAGE()
@@ -102,7 +108,7 @@ BUILD_ZIMAGE()
 	fi
 	du -k "$CR_KERNEL" | cut -f1 >sizT
 	sizT=$(head -n 1 sizT)
-	rm -rf sizT 
+	rm -rf sizT
 	echo " "
 	echo "----------------------------------------------"
 }
@@ -119,12 +125,12 @@ BUILD_DTB()
 	exit 0;
 	echo "DTB Failed to Compile"
 	echo " Abort "
-	fi    
+	fi
 	rm -rf $CR_DTS/.*.tmp
 	rm -rf $CR_DTS/.*.cmd
 	rm -rf $CR_DTS/*.dtb
 	du -k "$CR_DTB" | cut -f1 >sizdT
-	sizdT=$(head -n 1 sizdT)    
+	sizdT=$(head -n 1 sizdT)
 	rm -rf sizdT
 	echo " "
 	echo "----------------------------------------------"
@@ -158,7 +164,7 @@ echo "----------------------------------------------"
 echo "$CR_NAME $CR_VERSION Build Script"
 echo "----------------------------------------------"
 PS3='Please select your option (1-5): '
-menuvar=("SM-N920X" "SM-N9208" "SM-N920PTW8" "SM-G928X" "Exit")
+menuvar=("SM-N920X" "SM-N9208" "SM-N920PTW8" "SM-G928X" "SM-G92X" "SM-G92XUS" "Exit")
 select menuvar in "${menuvar[@]}"
 do
     case $menuvar in
@@ -177,7 +183,7 @@ do
             echo "Compiled DTB Size = $sizdT Kb"
             echo "Kernel Image Size = $sizT Kb"
             echo "Boot Image   Size = $sizkT Kb"
-            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"
             echo "Press Any key to end the script"
             echo "----------------------------------------------"
             read -n1 -r key
@@ -198,12 +204,12 @@ do
             echo "Compiled DTB Size = $sizdT Kb"
             echo "Kernel Image Size = $sizT Kb"
             echo "Boot Image   Size = $sizkT Kb"
-            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"
             echo "Press Any key to end the script"
             echo "----------------------------------------------"
             read -n1 -r key
             break
-            ;;          
+            ;;
         "SM-N920PTW8")
             clear
             echo "Starting $CR_VARIANT_N920P_T_W8 kernel build..."
@@ -219,7 +225,7 @@ do
             echo "Compiled DTB Size = $sizdT Kb"
             echo "Kernel Image Size = $sizT Kb"
             echo "Boot Image   Size = $sizkT Kb"
-            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"
             echo "Press Any key to end the script"
             echo "----------------------------------------------"
             read -n1 -r key
@@ -240,13 +246,53 @@ do
             echo "Compiled DTB Size = $sizdT Kb"
             echo "Kernel Image Size = $sizT Kb"
             echo "Boot Image   Size = $sizkT Kb"
-            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"
             echo "Press Any key to end the script"
             echo "----------------------------------------------"
             read -n1 -r key
             break
-            ;;            
-            "Exit")
+            ;;
+        "SM-G92X")
+            clear
+            echo "Starting $CR_VARIANT_G92X kernel build..."
+            CR_VARIANT=$CR_VARIANT_G92X
+            CR_CONFG=$CR_CONFG_G92X
+            CR_DTSFILES=$CR_DTSFILES_G92X
+            BUILD_ZIMAGE
+            BUILD_DTB
+            PACK_BOOT_IMG
+            echo "----------------------------------------------"
+            echo "$CR_VARIANT kernel build finished."
+            echo "Compiled DTB Size = $sizdT Kb"
+            echo "Kernel Image Size = $sizT Kb"
+            echo "Boot Image   Size = $sizkT Kb"
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"
+            echo "Press Any key to end the script"
+            echo "----------------------------------------------"
+            read -n1 -r key
+            break
+            ;;
+        "SM-G92XUS")
+            clear
+            echo "Starting $CR_VARIANT_G92XUS kernel build..."
+            CR_VARIANT=$CR_VARIANT_G92XUS
+            CR_CONFG=$CR_CONFG_G92XUS
+            CR_DTSFILES=$CR_DTSFILES_G92X
+            BUILD_ZIMAGE
+            BUILD_DTB
+            PACK_BOOT_IMG
+            echo "----------------------------------------------"
+            echo "$CR_VARIANT kernel build finished."
+            echo "Compiled DTB Size = $sizdT Kb"
+            echo "Kernel Image Size = $sizT Kb"
+            echo "Boot Image   Size = $sizkT Kb"
+            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"
+            echo "Press Any key to end the script"
+            echo "----------------------------------------------"
+            read -n1 -r key
+            break
+            ;;
+        "Exit")
             break
             ;;
         *) echo Invalid option.;;
