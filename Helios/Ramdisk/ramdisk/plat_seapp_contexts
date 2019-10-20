@@ -16,3 +16,5 @@ user=_app isPrivApp=true domain=priv_app type=app_data_file levelFrom=user
 user=_app minTargetSdkVersion=28 domain=untrusted_app type=app_data_file levelFrom=all
 user=_app minTargetSdkVersion=26 domain=untrusted_app_27 type=app_data_file levelFrom=user
 user=_app domain=untrusted_app_25 type=app_data_file levelFrom=user
+user=_app isPrivApp=true seinfo=platform name=com.android.gallery3d domain=gallery_app type=app_data_file levelFrom=user
+user=_app isPrivApp=true seinfo=platform name=org.lineageos.snap domain=snap_app type=app_data_file levelFrom=user
