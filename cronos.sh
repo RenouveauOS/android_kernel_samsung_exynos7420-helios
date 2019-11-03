@@ -33,7 +33,7 @@ CR_KERNEL=$CR_DIR/arch/arm64/boot/Image
 # Compiled dtb by dtbtool
 CR_DTB=$CR_DIR/boot.img-dtb
 # Kernel Name and Version
-CR_VERSION=v3.5.1
+CR_VERSION=v3.5.2
 CR_NAME=HeliosPie_Renouveau
 # Thread count
 CR_JOBS=$((`nproc`-1))
@@ -148,7 +148,7 @@ PACK_BOOT_IMG()
 	cat >$CR_OUT/$CR_VARIANT/META-INF/com/google/android/updater-script <<EOL
 ui_print("*******************************************");
 ui_print("*   Helios for AOSP 9 Pie   *");
-ui_print("*   Version: v3.5.1-r3         *");
+ui_print("*   Version: v3.5.2         *");
 ui_print("*   Variant: ${CR_VARIANT}             *");
 ui_print("*******************************************");
 ui_print("*    Credits:                                     *");
