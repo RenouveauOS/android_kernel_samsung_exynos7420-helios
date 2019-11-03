@@ -1,0 +1,145 @@
+Signature-Version: 1.0
+SHA1-Digest-Manifest: EK0oB9OSsygL7STi7roWWkvd3nI=
+Created-By: 1.0 (JRummy Apps Inc.)
+
+Name: META-INF/com/google/android/updater-script
+SHA1-Digest: FVpDdhGEqtty37FFV0UHtcE7Kto=
+
+Name: system/etc/wifi/nvram_net.txt_semco3rd_b85_a1
+SHA1-Digest: wAKMqqwhff3+SJDy7mwA/lOQytU=
+
+Name: system/etc/wifi/nvram_mfg.txt_semco3rd_a1
+SHA1-Digest: 7scZTqHf0FxS52AVDq4C6RM159s=
+
+Name: system/etc/wifi/nvram_net.txt
+SHA1-Digest: rXFe9xZODlUwfvezhOI7xYTaHfM=
+
+Name: system/etc/wifi/nvram_mfg.txt_semco3rd_b85_a1
+SHA1-Digest: f8l1vfASWx/fVilx44xVieuVqc4=
+
+Name: system/etc/wifi/wpa_supplicant_overlay.conf
+SHA1-Digest: wij6+YEVdf4ZfjC7qV50gJZfS0g=
+
+Name: system/etc/wifi/bcmdhd_apsta.bin_a1
+SHA1-Digest: BysCkAdBo/sBgmgzaIom77X/eb4=
+
+Name: system/etc/wifi/nvram_mfg.txt
+SHA1-Digest: WI8dptvYtWBL8SZLX/0mUAGIYNI=
+
+Name: system/etc/wifi/nvram_mfg.txt_murata
+SHA1-Digest: nCbEkV/N4Rvn8O3qommQ/x/+xzk=
+
+Name: system/etc/wifi/bcmdhd_ibss.bin
+SHA1-Digest: Sk6eOQyoV7A46Ypb9CQMXIXjbU8=
+
+Name: system/etc/wifi/nvram_net.txt_a1
+SHA1-Digest: CINkDDs5e9n/fKWRVGs8GY63moE=
+
+Name: system/etc/wifi/nvram_net.txt_murata_a1
+SHA1-Digest: YmoUxAvSy20GmR8eyw9S7VR8ILU=
+
+Name: system/etc/wifi/p2p_supplicant_overlay.conf
+SHA1-Digest: b7hBFstVf0h/se5G8tPY3RloDSQ=
+
+Name: system/etc/wifi/bcmdhd_sta.bin
+SHA1-Digest: 1dRP6lo9JWqeOShfaOs7dg1/qUI=
+
+Name: system/etc/wifi/nvram_net.txt_semco_a1
+SHA1-Digest: 5fMINv2tLKaZ1/Qu2waYq4E6HhY=
+
+Name: system/etc/wifi/nvram_mfg.txt_semco3rd
+SHA1-Digest: cbvd9rQDRoyIXXVT7H4aL39TiA0=
+
+Name: system/etc/wifi/nvram_net.txt_wisol
+SHA1-Digest: uaTOVJ/hxia08NzP4eOgyv9a+bo=
+
+Name: system/etc/wifi/nvram_mfg.txt_semco_b85_a1
+SHA1-Digest: MtAogvpYZQTVB/EnrjDHBkVBNm8=
+
+Name: system/etc/wifi/bcmdhd_apsta.bin
+SHA1-Digest: jsafhJZQRik8m3Hbo0dwn+dLj5c=
+
+Name: system/etc/wifi/bcmdhd_sta.bin_b1
+SHA1-Digest: dRz6D9uz4NTQNfYPza1WiOt/uPk=
+
+Name: system/etc/wifi/bcmdhd_mfg.bin
+SHA1-Digest: wWz604U6savhC1I1JKxwXwnV9fs=
+
+Name: system/etc/wifi/nvram_mfg.txt_murata_b85_a1
+SHA1-Digest: kmsR//OtgKYQ+PTPpayZb1JZ7rw=
+
+Name: system/etc/wifi/nvram_net.txt_semco
+SHA1-Digest: 8FBy4LS8LBd0CAp9YS0mp2d+gE8=
+
+Name: system/etc/wifi/nvram_net.txt_semco3rd_a1
+SHA1-Digest: WfdiGQQML6+H9XOFg50gLQtVZeM=
+
+Name: system/etc/wifi/nvram_mfg.txt_murata_a1
+SHA1-Digest: fOhu5FBlOUUozyxtjNaTCmN8v4o=
+
+Name: system/etc/wifi/nvram_net.txt_wisol_a1
+SHA1-Digest: 8W8LR4smc6f3ylp9zcKkw58ylLU=
+
+Name: system/etc/wifi/nvram_mfg.txt_wisol_a1
+SHA1-Digest: 9VAObXXtQl5XmnO0SM62dJct6Xc=
+
+Name: system/etc/wifi/nvram_net.txt_murata_b85_a1
+SHA1-Digest: vIxyeb6vuwvhygnJ2BcrCV3jAco=
+
+Name: META-INF/com/google/android/update-binary
+SHA1-Digest: A1e3bS87qeP0suypQEZd5JkBY8E=
+
+Name: system/etc/wifi/nvram_net.txt_b1
+SHA1-Digest: NFgdTKK6wxAg0mAFoq8PwoLBJrg=
+
+Name: system/etc/wifi/nvram_net.txt_b85_a1
+SHA1-Digest: RHyM38WxuuZt/P9NM/vvE9CmZ5s=
+
+Name: system/etc/wifi/nvram_net.txt_wisol_b85_a1
+SHA1-Digest: cu+9p5PxEDw7TRs8X/Dioh7Pel4=
+
+Name: system/etc/wifi/filter_ie
+SHA1-Digest: k4YVt+YObnEPwTebf90NXMC8UtU=
+
+Name: system/etc/wifi/nvram_mfg.txt_semco
+SHA1-Digest: h7d5r6LWyEZt2ZqWKLeE8/7DRCU=
+
+Name: system/etc/wifi/bcmdhd_mfg.bin_a1
+SHA1-Digest: a5kKg2xcimByKn6Lyhq8C3Tp5v4=
+
+Name: system/etc/wifi/nvram_net.txt_murata
+SHA1-Digest: qT/Nto0nwc5lbWz1adiLzbEadu0=
+
+Name: system/etc/wifi/nvram_mfg.txt_wisol
+SHA1-Digest: H8BiMCg55yo8BaNW3tL6o4NgnZ0=
+
+Name: system/etc/wifi/bcmdhd_sta.bin_a1
+SHA1-Digest: ynhT2QJCRHG1sTqX5uDjrqHYPl8=
+
+Name: system/etc/wifi/nvram_mfg.txt_b85_a1
+SHA1-Digest: tlI5vwfIgQcaKzlKispfp5tL8CI=
+
+Name: system/etc/wifi/nvram_mfg.txt_wisol_b85_a1
+SHA1-Digest: rcwxM8g1ytUbWt08Ic4AIjsGHIk=
+
+Name: system/etc/wifi/nvram_mfg.txt_semco_a1
+SHA1-Digest: ZoNSAPTj5VOYU4dUJIO5xgfV720=
+
+Name: system/etc/wifi/nvram_net.txt_semco3rd
+SHA1-Digest: R4DiMavWBN5YAxpaDX3l1Yp9dIY=
+
+Name: system/etc/wifi/bcmdhd_ibss.bin_a1
+SHA1-Digest: wIeMNOxyY+Yh/iX9CiZHhBbs2v0=
+
+Name: system/etc/wifi/nvram_mfg.txt_a1
+SHA1-Digest: NQ1j7vrC3zfwoe9q3jLfLilGq0A=
+
+Name: system/etc/wifi/nvram_net.txt_semco3rd_b1
+SHA1-Digest: ANzLo1Cyq+8TmaCh58CF8+Tnx5w=
+
+Name: system/etc/wifi/nvram_net.txt_semco_b85_a1
+SHA1-Digest: ZFo2QnrZcmKu4pGFxhxECHkJttE=
+
+Name: system/etc/wifi/wififixed.log
+SHA1-Digest: 0mCa14okV6IHICCkYHCMGZUCi4I=
+
