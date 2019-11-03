@@ -36,7 +36,7 @@ CR_KERNEL=$CR_DIR/arch/arm64/boot/Image
 CR_DTB=$CR_DIR/boot.img-dtb
 # Kernel Name and Version
 CR_VERSION=v3.5.2
-CR_NAME=HeliosPie_Renouveau
+CR_NAME=HeliosOreo_Renouveau
 # Thread count
 CR_JOBS=$((`nproc`-1))
 # Target android version and platform (7/n/8/o/9/p)
