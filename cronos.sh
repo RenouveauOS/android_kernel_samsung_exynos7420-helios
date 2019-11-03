@@ -28,6 +28,8 @@ CR_OUT=$CR_DIR/Helios/Out
 CR_AIK=$CR_DIR/Helios/A.I.K
 # Main Ramdisk Location
 CR_RAMDISK=$CR_DIR/Helios/Ramdisk
+# Main Edify Location
+CR_EDIFY=$CR_DIR/Helios/Edify
 # Compiled image name and location (Image/zImage)
 CR_KERNEL=$CR_DIR/arch/arm64/boot/Image
 # Compiled dtb by dtbtool
