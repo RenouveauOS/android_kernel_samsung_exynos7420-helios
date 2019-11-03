@@ -134,9 +134,48 @@ PACK_BOOT_IMG()
 	$CR_AIK/repackimg.sh
 	# Remove red warning at boot
 	echo -n "SEANDROIDENFORCE" » $CR_AIK/image-new.img
+	# Remove old out dir if exists
+	rm -rf $CR_OUT/$CR_VARIANT
+	# Make out dir
+	mkdir -p $CR_OUT/$CR_VARIANT
 	# Move boot.img to out dir
-	mv $CR_AIK/image-new.img $CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img
-	du -k "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img" | cut -f1 >sizkT
+	mv $CR_AIK/image-new.img $CR_OUT/$CR_VARIANT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img
+	du -k "$CR_OUT/$CR_VARIANT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img" | cut -f1 >sizkT
+	
+	### EDIFY ###
+	# Make edify script directory
+	mkdir -p $CR_OUT/$CR_VARIANT/META-INF/com/google/android
+	# Write edify script
+	cat >$CR_OUT/$CR_VARIANT/META-INF/com/google/android/updater-script <<EOL
+ui_print("*******************************************");
+ui_print("*   Helios for AOSP 8.1 Oreo   *");
+ui_print("*   Version: v3.5.1-r3         *");
+ui_print("*   Variant: ${CR_VARIANT}             *");
+ui_print("*******************************************");
+ui_print("*    Credits:                                     *");
+ui_print("*    Noxxxious for the base for S6         *");
+ui_print("*    ananjaser1211 for the rebuild for N5   *");
+ui_print("*    JoshuaDoes for porting it to AOSP for N5/S6    *");
+
+ui_print("> Flashing kernel...");
+package_extract_file("${CR_NAME}-${CR_VERSION}-${CR_DATE}-${CR_VARIANT}.img", "/dev/block/platform/15570000.ufs/by-name/BOOT");
+
+set_progress(1.000000);
+ui_print("****************************************");
+ui_print("*          Install Complete!           *");
+ui_print("****************************************");
+EOL
+	# Copy update-binary
+	cp -f $CR_EDIFY/update-binary $CR_OUT/$CR_VARIANT/META-INF/com/google/android/update-binary
+	# Copy CERT.RSA
+	cp -f $CR_EDIFY/CERT.RSA $CR_OUT/$CR_VARIANT/META-INF/CERT.RSA
+	# Copy CERT.SF
+	cp -f $CR_EDIFY/CERT.SF $CR_OUT/$CR_VARIANT/META-INF/CERT.SF
+	# Copy MANIFEST.MF
+	cp -f $CR_EDIFY/MANIFEST.MF $CR_OUT/$CR_VARIANT/META-INF/MANIFEST.MF
+	# Zip up the new installer for flashing
+	zip -r $CR_OUT/$CR_VARIANT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.zip $CR_OUT/$CR_VARIANT/*
+
 	sizkT=$(head -n 1 sizkT)
 	rm -rf sizkT
 	echo " "
@@ -167,7 +206,7 @@ do
             echo "Compiled DTB Size = $sizdT Kb"
             echo "Kernel Image Size = $sizT Kb"
             echo "Boot Image   Size = $sizkT Kb"
-            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
+            echo "$CR_OUT/$CR_VARIANT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.(img/zip) Ready"
             echo "Press Any key to end the script"
             echo "----------------------------------------------"
             read -n1 -r key
@@ -188,7 +227,7 @@ do
             echo "Compiled DTB Size = $sizdT Kb"
             echo "Kernel Image Size = $sizT Kb"
             echo "Boot Image   Size = $sizkT Kb"
-            echo "$CR_OUT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.img Ready"                         
+            echo "$CR_OUT/$CR_VARIANT/$CR_NAME-$CR_VERSION-$CR_DATE-$CR_VARIANT.(img/zip) Ready"
             echo "Press Any key to end the script"
             echo "----------------------------------------------"
             read -n1 -r key
